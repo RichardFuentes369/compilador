@@ -431,6 +431,10 @@ function analizadorLexico(codigo) {
 
 		while((match = regex.exec(codigo)) !== null){
 			const token = match[1] || match[2];
+
+			// mientras el siguiente sea un simbolo concatenar
+			// si no es um simbolo romper y buscar
+
 			console.log(token)
 		}
 	} catch (error) {
@@ -445,7 +449,7 @@ function analizadorLexico(codigo) {
 const codigo = `
 	let _x = 10;
 	let _y = 10;
-	if (parseInt(_x) + 5 * parseInt(_y) > 100) {
+	if (parseInt(_x) + 5 >= 30 || parseInt(_x) + 5 < 1 && parseInt(_y) == 30) {
 			/*Hola mundo*/
 			// Aqui desde mañana 
 			_y = _x * 2
