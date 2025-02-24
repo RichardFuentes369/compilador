@@ -346,166 +346,17 @@ function analizadorLexico(codigo) {
 			"timeStamp"
 		];
 
+
+    let i = 0;
 		const tokens = [];
 
-
-		
-
-
-	
-    const regex = /\b(\w+)\b|(\S)/g; // Identifica palabras y caracteres individuales
-		const regexVariables = /^[a-zA-Z_][a-zA-Z0-9_]*$/; // Regex para validar nombres de variables
-    let match;
-
-		posibleComentario = 0
-		cadenaComentario = ''
-		let storage = ''
-
-		recorrido = 0
-
-    while ((match = regex.exec(codigo)) !== null) {
-      const token = match[1] || match[2];
-
-			const palabraClave = tokenPalabrasReservadas.find(obj => obj.valor === token);
-  		const operador = tokenOperadoresSimples.find(obj => obj.valor === token);
-  		const corchete = tokenCorchetes.find(obj => obj.valor === token);
-			const metodoAcceso = tokenMetodosConsole.find(e => e == token)
-
-			/*
-				* Primer if => Valida si es un comentario o no
-				* Segundo if => Valida si es una palabra reservada
-				* Tercer if => Valida si es un número
-				* Cuarto if => Valida si es un corchete o parentesis
-				* Quinto if => Valida si es una variable, toda variable inicia con (_), ejemplo:  _Algo
-				* Sexto Es una cadena
-			*/
-
-			if (operador) {
-
-				if(storage == ''){
-					storage = {
-						tipo: "operadorLogico",
-						valor: token,
-						// descripcion: operador.descripcion
-					}
-				}
-
-				if (token == '/' || token == '*'){
-
-					posibleComentario = posibleComentario+1
-					cadenaComentario += token
-
-					if(posibleComentario == 2){
-						tokens.push(
-							{
-								tipo: "operadorComentario",
-								valor: cadenaComentario,
-								// descripcion: operador.descripcion
-							}
-						)
-						posibleComentario = 0
-						cadenaComentario = ''
-						storage = ''
-					}
-				}else{
-					if(posibleComentario == 1){
-						tokens.push(storage)
-						cadenaComentario = ''
-						storage = ''
-						posibleComentario = 0
-					}
-					tokens.push(
-						{
-							tipo: "operadorLogico",
-							valor: token,
-							// descripcion: operador.descripcion
-						}
-					)
-					storage = ''
-					cadenaComentario = ''
-					posibleComentario = 0
-				}
-
-			}	else if (palabraClave) {
-        tokens.push(
-					{
-						tipo: "palabraReservada",
-						token: palabraClave.token,
-						valor: palabraClave.valor,
-						// descripcion: palabraClave.descripcion
-					});
-      } else if (/\d+/.test(token)) {
-				if(storage){
-					tokens.push(
-						{
-							tipo: storage.tipo,
-							valor: storage.valor,
-							// descripcion: "Valor númerico"
-						}
-					);
-					storage = ''
-				}
-        tokens.push(
-					{
-						tipo: "numero",
-						valor: token,
-						// descripcion: "Valor númerico"
-					}
-				);
-      } else if(corchete){
-				if(storage){
-					tokens.push(
-						{
-							tipo: storage.tipo,
-							valor: storage.valor,
-							// descripcion: "Valor númerico"
-						}
-					);
-					storage = ''
-				}
-        tokens.push(
-					{
-						tipo: "corchete",
-						valor: token,
-						// descripcion: "Variable declarada en el sistema por el usuario"
-					}
-				);
-			} else if((match = regexVariables.exec(token))){
-        tokens.push(
-					{
-						tipo: "variable",
-						valor: token,
-						// descripcion: "Variable declarada en el sistema por el usuario"
-					}
-				);
-      } else if(token == '.'){
-				tokens.push(
-					{
-						tipo: "accesoPropiedad",
-						valor: token,
-						// descripcion: "Cadena de texto escrita por el usuario"
-					}
-				);
-			} else if(metodoAcceso){
-				tokens.push(
-					{
-						tipo: "propiedadConsole",
-						valor: metodoAcceso,
-						// descripcion: "Cadena de texto escrita por el usuario"
-					}
-				);
-			} else {
-        tokens.push(
-					{
-						tipo: "cadena",
-						valor: token,
-						// descripcion: "Cadena de texto escrita por el usuario"
-					}
-				);
-      }
-    }
-
-    return tokens;
+    try {
+			console.log('aqui estoy')
+		} catch (error) {
+			console.error("Error durante el análisis léxico:", error.message);
+			return null;
+		}
+		return tokens;
 
   }
 
@@ -525,6 +376,6 @@ function analizadorLexico(codigo) {
 	console.log(_y)
 `
   
-	const tokens = analizadorLexico(codigo);
-  console.log(codigo);
-  console.log(tokens);
+console.log(codigo);
+const tokens = analizadorLexico(codigo);
+console.log(tokens);
