@@ -191,11 +191,13 @@ function analizadorLexico(codigo) {
 		},
 		{
 			"tipo": "simbolo reservado ;",
+			"descripcion": "indica que se le dio valor a una variable",
 			"token": "[_t:[;]]",
 			"valor": ";",
 		},
 		{
 			"tipo": "simbolo reservado .",
+			"descripcion": "indica que entrara a los valores de un objeto",
 			"token": "[_t:[.]]",
 			"valor": ".",
 		},
@@ -213,7 +215,7 @@ function analizadorLexico(codigo) {
 			"valor": ">",
 		},
 		{
-			"tipo": "operador suma",
+			"tipo": "operador suma o concatenacion",
 			"token": "[_t:[+]]",
 			"valor": "+",
 		},
@@ -243,7 +245,7 @@ function analizadorLexico(codigo) {
 			"valor": "%",
 		},
 		{
-			"tipo": "operador ternario, si no",
+			"tipo": "operador ternario, si no o terminacion case",
 			"token": "[_t:[:]]",
 			"valor": ":",
 		},
@@ -251,6 +253,11 @@ function analizadorLexico(codigo) {
 			"tipo": "operador entontes",
 			"token": "[_t:[?]]",
 			"valor": "?",
+		},
+		{
+			"tipo": "operador negacion",
+			"token": "[_t:[!]]",
+			"valor": "!",
 		},
 	];
 
@@ -432,8 +439,10 @@ function analizadorLexico(codigo) {
 		while((match = regex.exec(codigo)) !== null){
 			const token = match[1] || match[2];
 
-			// mientras el siguiente sea un simbolo concatenar
-			// si no es um simbolo romper y buscar
+			/*
+				* Validaciones para saber que token asigno
+				* Validar todos los tokens posibles
+			*/
 
 			console.log(token)
 		}
@@ -458,7 +467,7 @@ const codigo = `
 	} else { 
 			return "bye"
 	}
-	console.log(_y)
+	console.log(_y);
 `
   
 console.log(codigo);
