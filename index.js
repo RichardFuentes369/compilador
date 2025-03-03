@@ -548,11 +548,6 @@ const tokenMetodosConsoleCompuestos = [
 	}
 ];
 
-
-function esObjeto(obj) {
-	return typeof obj === "object" && obj !== null;
-}
-
 function filtroBusqueda(valorBusqueda) {
 
 	let _tokenPalabrasReservadasPuntoComa = tokenPalabrasReservadasPuntoComa.find(e => e.valor === valorBusqueda)
