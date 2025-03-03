@@ -399,34 +399,156 @@ function analizadorLexico(codigo) {
 		},
 	];
 
-	const tokenMetodosConsole = [
-		"log", 
-		"info", 
-		"warn", 
-		"error", 
-		"debug", 
-		"trace", 
-		"time", 
-		"timeEnd",
-		"timeLog", 
-		"group", 
-		"groupCollapsed", 
-		"groupEnd", 
-		"count", 
-		"countReset",
-		"table", 
-		"dir", 
-		"dirxml", 
-		"assert", 
-		"clear", 
-		"profile", 
-		"profileEnd",
-		"memory", 
-		"exception", 
-		"markTimeline", 
-		"timeStamp"
+	const tokenComentario = [
+		{
+			"tipo": "Apertura de comentario, ignorado por interprete",
+			"token": "[_t:['/*']]",
+			"valor": "/*",
+		},
+		{
+			"tipo": "Cierre de comentario, ignorado por interprete",
+			"token": "[_t:['*/']]",
+			"valor": "*/",
+		},
+		{
+			"tipo": "Apertura de comentario, en una sola linea",
+			"token": "[_t:['//']]",
+			"valor": "//",
+		},
+		{
+			"tipo": "Apertura de comentario de documentacion, ignorado por interprete",
+			"token": "[_t:['/**']]",
+			"valor": "/**",
+		},
 	];
 
+	const tokenMetodosConsole = [
+		{
+			"tipo": "consolelog",
+			"token": "[_t:['console.log']]",
+			"valor": "console.log",
+		},
+		{
+			"tipo": "consoleinfo",
+			"token": "[_t:['console.info']]",
+			"valor": "console.info"
+		},
+		{
+			"tipo": "consolewarn",
+			"token": "[_t:['console.warn']]",
+			"valor": "console.warn"
+		},
+		{
+			"tipo": "consoleerror",
+			"token": "[_t:['console.error']]",
+			"valor": "console.error"
+		},
+		{
+			"tipo": "consoledebug",
+			"token": "[_t:['console.debug']]",
+			"valor": "console.debug"
+		},
+		{
+			"tipo": "consoletrace",
+			"token": "[_t:['console.trace']]",
+			"valor": "console.trace"
+		},
+		{
+			"tipo": "consoletime",
+			"token": "[_t:['console.time']]",
+			"valor": "console.time"
+		},
+		{
+			"tipo": "consoletimeEnd",
+			"token": "[_t:['console.timeEnd']]",
+			"valor": "console.timeEnd"
+		},
+		{
+			"tipo": "consoletimeLog",
+			"token": "[_t:['console.timeLog']]",
+			"valor": "console.timeLog"
+		},
+		{
+			"tipo": "consolegroup",
+			"token": "[_t:['console.group']]",
+			"valor": "console.group"
+		},
+		{
+			"tipo": "consolegroupCollapsed",
+			"token": "[_t:['console.groupCollapsed']]",
+			"valor": "console.groupCollapsed"
+		},
+		{
+			"tipo": "consolegroupEnd",
+			"token": "[_t:['console.groupEnd']]",
+			"valor": "console.groupEnd"
+		},
+		{
+			"tipo": "consolecount",
+			"token": "[_t:['console.count']]",
+			"valor": "console.count"
+		},
+		{
+			"tipo": "consolecountReset",
+			"token": "[_t:['console.countReset']]",
+			"valor": "console.countReset"
+		},
+		{
+			"tipo": "consoletable",
+			"token": "[_t:['console.table']]",
+			"valor": "console.table"
+		},
+		{
+			"tipo": "consoledir",
+			"token": "[_t:['console.dir']]",
+			"valor": "console.dir"
+		},
+		{
+			"tipo": "consoledirxml",
+			"token": "[_t:['console.dirxml']]",
+			"valor": "console.dirxml"
+		},
+		{
+			"tipo": "consoleassert",
+			"token": "[_t:['console.assert']]",
+			"valor": "console.assert"
+		},
+		{
+			"tipo": "consoleclear",
+			"token": "[_t:['console.clear']]",
+			"valor": "console.clear"
+		},
+		{
+			"tipo": "consoleprofile",
+			"token": "[_t:['console.profile']]",
+			"valor": "console.profile"
+		},
+		{
+			"tipo": "consoleprofileEnd",
+			"token": "[_t:['console.profileEnd']]",
+			"valor": "console.profileEnd"
+		},
+		{
+			"tipo": "consolememory",
+			"token": "[_t:['console.memory']]",
+			"valor": "console.memory"
+		},
+		{
+			"tipo": "consoleexception",
+			"token": "[_t:['console.exception']]",
+			"valor": "console.exception"
+		},
+		{
+			"tipo": "consolemarkTimeline",
+			"token": "[_t:['console.markTimeline']]",
+			"valor": "console.markTimeline"
+		},
+		{
+			"tipo": "consoletimeStamp",
+			"token": "[_t:['console.timeStamp']]",
+			"valor": "console.timeStamp"
+		}
+	];
 
 	let i = 0;
 	const tokens = [];
@@ -434,7 +556,7 @@ function analizadorLexico(codigo) {
 	try {
 		const regex = /\b(\w+)\b|(\S)/g; // Identifica palabras y caracteres individuales
 		const regexVariables = /^[a-zA-Z_][a-zA-Z0-9_]*$/; // Regex para validar nombres de variables
-    let match;
+    	let match;
 
 		while((match = regex.exec(codigo)) !== null){
 			const token = match[1] || match[2];
@@ -443,6 +565,12 @@ function analizadorLexico(codigo) {
 				* Validaciones para saber que token asigno
 				* Validar todos los tokens posibles
 			*/
+
+			// si no esta en la lista de token, pasa a ser cadena y analiza el proximo y si encuentra algo en token
+			// hasta ahi revienta la cadena
+
+			// una variable acumuladora que me permita almacenar el ultimo dato
+			// si se encontro una coincidencia en los tokens almaceno una nueva si no la respuesta del token es la anterios
 
 			console.log(token)
 		}
