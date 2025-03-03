@@ -259,6 +259,57 @@ const tokenOperadoresSimples = [
 	},
 ];
 
+const tokenCorchetes = [
+	{
+		"tipo": "llave abre",
+		"token": "[_t:[{]]",
+		"valor": "{",
+	},
+	{
+		"tipo": "llave cierra",
+		"token": "[_t:[}]]",
+		"valor": "}",
+	},
+	{
+		"tipo": "parentesis abre",
+		"token": "[_t:[(]]",
+		"valor": "(",
+	},
+	{
+		"tipo": "parentesis cierra",
+		"token": "[_t:[)]]",
+		"valor": ")",
+	},
+	{
+		"tipo": "corchete abre",
+		"token": "[_t:[[]]",
+		"valor": "[",
+	},
+	{
+		"tipo": "corchete cierra",
+		"token": "[_t:[]]]",
+		"valor": "]",
+	},
+];
+
+const tokenCadenaImpresion = [
+	{
+		"tipo": "comentario",
+		"token": "[_t:[']]",
+		"valor": "'",
+	},
+	{
+		"tipo": "template",
+		"token": "[_t:[`]]",
+		"valor": "`",
+	},
+	{
+		"tipo": "comentario",
+		"token": "[_t:[\"]]",
+		"valor": "\"",
+	},
+];
+
 const tokenOperadoresCompuestos = [
 	{
 		"tipo": "operacion suma",
@@ -346,58 +397,7 @@ const tokenOperadoresCompuestos = [
 	},
 ];
 
-const tokenCorchetes = [
-	{
-		"tipo": "llave abre",
-		"token": "[_t:[{]]",
-		"valor": "{",
-	},
-	{
-		"tipo": "llave cierra",
-		"token": "[_t:[}]]",
-		"valor": "}",
-	},
-	{
-		"tipo": "parentesis abre",
-		"token": "[_t:[(]]",
-		"valor": "(",
-	},
-	{
-		"tipo": "parentesis cierra",
-		"token": "[_t:[)]]",
-		"valor": ")",
-	},
-	{
-		"tipo": "corchete abre",
-		"token": "[_t:[[]]",
-		"valor": "[",
-	},
-	{
-		"tipo": "corchete cierra",
-		"token": "[_t:[]]]",
-		"valor": "]",
-	},
-];
-
-const tokenCadenaImpresion = [
-	{
-		"tipo": "comentario",
-		"token": "[_t:[']]",
-		"valor": "'",
-	},
-	{
-		"tipo": "template",
-		"token": "[_t:[`]]",
-		"valor": "`",
-	},
-	{
-		"tipo": "comentario",
-		"token": "[_t:[\"]]",
-		"valor": "\"",
-	},
-];
-
-const tokenComentario = [
+const tokenComentarioCompuestos = [
 	{
 		"tipo": "Apertura de comentario, ignorado por interprete",
 		"token": "[_t:['/*']]",
@@ -420,7 +420,7 @@ const tokenComentario = [
 	},
 ];
 
-const tokenMetodosConsole = [
+const tokenMetodosConsoleCompuestos = [
 	{
 		"tipo": "consolelog",
 		"token": "[_t:['console.log']]",
@@ -560,8 +560,8 @@ function filtroBusqueda(valorBusqueda) {
 	let _tokenOperadoresCompuestos = tokenOperadoresCompuestos.find(e => e.valor === valorBusqueda)
 	let _tokenCorchetes = tokenCorchetes.find(e => e.valor === valorBusqueda)
 	let _tokenCadenaImpresion = tokenCadenaImpresion.find(e => e.valor === valorBusqueda)
-	let _tokenComentario = tokenComentario.find(e => e.valor === valorBusqueda)
-	let _tokenMetodosConsole = tokenMetodosConsole.find(e => e.valor === valorBusqueda)
+	let _tokenComentarioCompuestos = tokenComentarioCompuestos.find(e => e.valor === valorBusqueda)
+	let _tokenMetodosConsoleCompuestos = tokenMetodosConsoleCompuestos.find(e => e.valor === valorBusqueda)
 
 	let x = ''
 
@@ -580,11 +580,11 @@ function filtroBusqueda(valorBusqueda) {
 	if(_tokenCadenaImpresion){
 		x = _tokenCadenaImpresion.token
 	}
-	if(_tokenComentario){
-		x = _tokenComentario.token
+	if(_tokenComentarioCompuestos){
+		x = _tokenComentarioCompuestos.token
 	}	
-	if(_tokenMetodosConsole){
-		x = _tokenMetodosConsole.token
+	if(_tokenMetodosConsoleCompuestos){
+		x = _tokenMetodosConsoleCompuestos.token
 	}	
 	if(valorBusqueda.startsWith("_")){
 		x = "[_t:["+valorBusqueda+"]]"
@@ -649,13 +649,13 @@ const codigo = `
 	let _x = 10;
 	let _y = 10;
 	if (parseInt(_x) + 5 >= 30 || parseInt(_x) + 5 < 1 && parseInt(_y) == 30) {
-			/*Hola mundo*/
-			// Aqui desde mañana 
-			_y = _x * 2
+		/*Hola mundo*/
+		// Aqui desde mañana 
+		_y = _x * 2
 	} else if(parseInt(_x) + 5 * parseInt(_y) < 100){ 
-			_y = _x ** 2
+		_y = _x ** 2
 	} else { 
-			return "bye"
+		return "bye"
 	}
 	console.log(_y);
 `
