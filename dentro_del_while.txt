@@ -1,0 +1,11 @@
+let coincidencia = filtroBusqueda(token).toString()
+
+if(tokens.length != 0){
+	if(!tokens.includes(coincidencia) && coincidencia != ''){
+		tokens.push(coincidencia)
+	}
+}
+
+if(tokens.length == 0){
+	tokens.push(coincidencia)
+}

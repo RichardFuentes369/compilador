@@ -257,6 +257,16 @@ const tokenOperadoresSimples = [
 		"token": "[_t:[!]]",
 		"valor": "!",
 	},
+	{
+		"tipo": "operador or simple",
+		"token": "[_t:[|]]",
+		"valor": "|",
+	},
+	{
+		"tipo": "operador and simple",
+		"token": "[_t:[&]]",
+		"valor": "&",
+	},
 ];
 
 const tokenCorchetes = [
@@ -337,6 +347,16 @@ const tokenOperadoresCompuestos = [
 		"valor": "%=",
 	},
 	{
+		"tipo": "operacion mayor igual",
+		"token": "[_t:[>=]]",
+		"valor": ">=",
+	},
+	{
+		"tipo": "operacion menor igual",
+		"token": "[_t:[<=]]",
+		"valor": "<=",
+	},
+	{
 		"tipo": "operacion exponente",
 		"token": "[_t:[**=]]",
 		"valor": "**=",
@@ -382,6 +402,11 @@ const tokenOperadoresCompuestos = [
 		"valor": "^=",
 	},
 	{
+		"tipo": "operacion or compuesto",
+		"token": "[_t:[||]]",
+		"valor": "||",
+	},
+	{
 		"tipo": "operacion asignacion compuesta",
 		"token": "[_t:[|=]]",
 		"valor": "|=",
@@ -390,6 +415,11 @@ const tokenOperadoresCompuestos = [
 		"tipo": "operacion asignacion compuesta",
 		"token": "[_t:[||=]]",
 		"valor": "||=",
+	},
+	{
+		"tipo": "operacion and compuesta",
+		"token": "[_t:[&&]]",
+		"valor": "&&",
 	},
 	{
 		"token": "[_t:[??=]]",
@@ -548,46 +578,58 @@ const tokenMetodosConsoleCompuestos = [
 	}
 ];
 
-function filtroBusqueda(valorBusqueda) {
+function filtroBusquedaUnitario(valorBusqueda) {
 
 	let _tokenPalabrasReservadasPuntoComa = tokenPalabrasReservadasPuntoComa.find(e => e.valor === valorBusqueda)
 	let _tokenOperadoresSimples = tokenOperadoresSimples.find(e => e.valor === valorBusqueda)
-	let _tokenOperadoresCompuestos = tokenOperadoresCompuestos.find(e => e.valor === valorBusqueda)
 	let _tokenCorchetes = tokenCorchetes.find(e => e.valor === valorBusqueda)
 	let _tokenCadenaImpresion = tokenCadenaImpresion.find(e => e.valor === valorBusqueda)
-	let _tokenComentarioCompuestos = tokenComentarioCompuestos.find(e => e.valor === valorBusqueda)
 	let _tokenMetodosConsoleCompuestos = tokenMetodosConsoleCompuestos.find(e => e.valor === valorBusqueda)
 
 	let x = ''
 
 	if(_tokenPalabrasReservadasPuntoComa){
-		x = _tokenPalabrasReservadasPuntoComa.token
+		x = _tokenPalabrasReservadasPuntoComa.valor
 	}	
 	if(_tokenOperadoresSimples){
-		x = _tokenOperadoresSimples.token
-	}
-	if(_tokenOperadoresCompuestos){
-		x = _tokenOperadoresCompuestos.token
+		x = _tokenOperadoresSimples.valor
 	}
 	if(_tokenCorchetes){
-		x = _tokenCorchetes.token
+		x = _tokenCorchetes.valor
 	}
 	if(_tokenCadenaImpresion){
-		x = _tokenCadenaImpresion.token
-	}
-	if(_tokenComentarioCompuestos){
-		x = _tokenComentarioCompuestos.token
+		x = _tokenCadenaImpresion.valor
 	}	
 	if(_tokenMetodosConsoleCompuestos){
-		x = _tokenMetodosConsoleCompuestos.token
+		x = _tokenMetodosConsoleCompuestos.valor
 	}	
 	if(valorBusqueda.startsWith("_")){
-		x = "[_t:["+valorBusqueda+"]]"
+		// x = "[_t:["+valorBusqueda+"]]"
+		x = valorBusqueda
 	}
 
 	if(/^-?\d+$/.test(valorBusqueda) == true){
-		x = "[_t:[numero]]"
+		// x = "[_t:[numero"+valorBusqueda+"]]"
+		x = "numero"+valorBusqueda
 	}
+
+	return x
+
+}
+
+function filtroBusquedaCompuesto(valorBusqueda) {
+
+	let _tokenOperadoresCompuestos = tokenOperadoresCompuestos.find(e => e.valor === valorBusqueda)
+	let _tokenComentarioCompuestos = tokenComentarioCompuestos.find(e => e.valor === valorBusqueda)
+
+	let x = ''
+
+	if(_tokenOperadoresCompuestos){
+		x = _tokenOperadoresCompuestos.valor
+	}
+	if(_tokenComentarioCompuestos){
+		x = _tokenComentarioCompuestos.valor
+	}	
 
 	return x
 
@@ -598,9 +640,10 @@ function analizadorLexico(codigo) {
 	let i = 0;
 	const tokens = [];
 
-	let tokenActual = ''
-	let tokenSiguiente = ''
-	let tokenDefinitivo = ''
+
+	// toca jugar con esto
+	let oldToken = ''
+	let newToken = ''
 
 	try {
 		const regex = /\b(\w+)\b|(\S)/g; // Identifica palabras y caracteres individuales
@@ -608,29 +651,36 @@ function analizadorLexico(codigo) {
     	let match;
 
 		while((match = regex.exec(codigo)) !== null){
-			i += 1 
+
+			i += 1
 			const token = match[1] || match[2];
 
-			let coincidencia = filtroBusqueda(token).toString()
-
-			if(tokens.length != 0){
-				if(!tokens.includes(coincidencia) && coincidencia != ''){
-					tokens.push(coincidencia)
+			let unitario = filtroBusquedaUnitario(token).toString() // caracteres es 1
+			
+			if(unitario){
+				tokenCompuestoEvaluar = tokens[tokens.length - 1] + token
+				let compuesto = filtroBusquedaCompuesto(tokenCompuestoEvaluar).toString() // caracteres es 2,3,4
+				if(compuesto){
+					console.log(compuesto)
+					tokens[tokens.length - 1];
+					tokens.pop()
+					if(!tokens.find(obj => obj === compuesto)){
+						tokens.push(compuesto)
+					}
+				}else{
+					if(!tokens.find(obj => obj === unitario)){
+						tokens.push(unitario)
+					}
+				}
+			}else{
+				palabraCadena = "textoEnCadena"
+				if(!tokens.find(obj => obj === palabraCadena)){
+					tokens.push(palabraCadena)
 				}
 			}
 
-			if(tokens.length == 0){
-				tokens.push(coincidencia)
-			}
-
-			// si no esta en la lista de token, pasa a ser cadena y analiza el proximo y si encuentra algo en token
-			// hasta ahi revienta la cadena
-
-			// una variable acumuladora que me permita almacenar el ultimo dato
-			// si se encontro una coincidencia en los tokens almaceno una nueva si no la respuesta del token es la anterios
 		}
 
-		console.log(i)
 		return tokens
 	} catch (error) {
 		console.error("Error durante el análisis léxico:", error.message);
@@ -639,20 +689,25 @@ function analizadorLexico(codigo) {
 
 }
 
+// const codigo = `
+// 	let _x = 10;
+// 	let _y = 10;
+// 	if (parseInt(_x) + 5 >= 30 || parseInt(_x) + 5 < 1 && parseInt(_y) = 30) {
+// 		/* Hola mundo */
+// 		// Aqui desde mañana 
+// 		_y = _x * 2
+// 		_y += _x * 2
+// 	} else if(parseInt(_x) + 5 * parseInt(_y) < 100){ 
+// 		_y = _x ** 2
+// 	} else { 
+// 		return "bye"
+// 	}
+// 	console.log(_y);
+// `
 
 const codigo = `
-	let _x = 10;
-	let _y = 10;
-	if (parseInt(_x) + 5 >= 30 || parseInt(_x) + 5 < 1 && parseInt(_y) == 30) {
-		/*Hola mundo*/
-		// Aqui desde mañana 
-		_y = _x * 2
-	} else if(parseInt(_x) + 5 * parseInt(_y) < 100){ 
-		_y = _x ** 2
-	} else { 
-		return "bye"
-	}
-	console.log(_y);
+	_z = 2 * 4
+	_r = _z ** 4
 `
   
 console.log(codigo);
