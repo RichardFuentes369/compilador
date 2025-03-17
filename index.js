@@ -647,6 +647,7 @@ function analizadorLexico(codigo) {
 		const regexVariables = /^[a-zA-Z_][a-zA-Z0-9_]*$/; // Regex para validar nombres de variables
     	let match;
 
+		// recorro y almaceno tokens
 		while((match = regex.exec(codigo)) !== null){
 
 			i += 1
@@ -658,23 +659,27 @@ function analizadorLexico(codigo) {
 
 				tokenAcumulado += unitario
 
+				// evaluo si el token puede ser un compuesto
 				let acumulado = filtroBusquedaCompuesto(tokenAcumulado).toString() // caracteres es 2,3,4
 
+				// si es compuesto
 				if(acumulado != ""){
+					// elimino el ultimo insertado
 					if(token.length > 0){
 						tokens.pop(token.length - 1)
 					}
-
-					//if(!tokens.find(obj => obj === tokenAcumulado)){
-						tokens.push(tokenAcumulado)
-					//}
+					// almaceno el compuesto
+					tokens.push(tokenAcumulado)
 				}
+
+				// si no encontro el compuesto pero si unitario
 				if(acumulado == "" && unitario){
+					// elimino el compuesto dejandolo en ""
 					tokenAcumulado = ""
+					// almaceno el ultimo unitario a guardar
 					tokenAcumulado += unitario
-					//if(!tokens.find(obj => obj === tokenAcumulado)){
-						tokens.push(tokenAcumulado)
-					//}
+					// guardo el ultimo unitario
+					tokens.push(tokenAcumulado)
 				}
 
 			}else{
@@ -686,7 +691,9 @@ function analizadorLexico(codigo) {
 
 		}
 
+		// duplico el array original y saco los que se repiten
 		let arraySinDuplicados = [...new Set(tokens)];
+		// devuelvo los tokens reales
 		return arraySinDuplicados
 	} catch (error) {
 		console.error("Error durante el análisis léxico:", error.message);
