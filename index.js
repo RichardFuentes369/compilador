@@ -640,10 +640,7 @@ function analizadorLexico(codigo) {
 	let i = 0;
 	const tokens = [];
 
-
-	// toca jugar con esto
-	let oldToken = ''
-	let newToken = ''
+	let tokenAcumulado = ''
 
 	try {
 		const regex = /\b(\w+)\b|(\S)/g; // Identifica palabras y caracteres individuales
@@ -656,18 +653,28 @@ function analizadorLexico(codigo) {
 			const token = match[1] || match[2];
 
 			let unitario = filtroBusquedaUnitario(token).toString() // caracteres es 1
-
+			
 			if(unitario){
 
-				if(tokens.length >= 1){
-					newToken = unitario
+				tokenAcumulado += unitario
 
-					tokenCompuestoEvaluar =  oldToken + newToken
-					let compuesto = filtroBusquedaCompuesto(tokenCompuestoEvaluar).toString() // caracteres es 2,3,4
+				let acumulado = filtroBusquedaCompuesto(tokenAcumulado).toString() // caracteres es 2,3,4
 
-				}else{
-					oldToken = unitario
-					tokens.push(oldToken)
+				if(acumulado != ""){
+					if(token.length > 0){
+						tokens.pop(token.length - 1)
+					}
+
+					//if(!tokens.find(obj => obj === tokenAcumulado)){
+						tokens.push(tokenAcumulado)
+					//}
+				}
+				if(acumulado == "" && unitario){
+					tokenAcumulado = ""
+					tokenAcumulado += unitario
+					//if(!tokens.find(obj => obj === tokenAcumulado)){
+						tokens.push(tokenAcumulado)
+					//}
 				}
 
 			}else{
@@ -679,7 +686,8 @@ function analizadorLexico(codigo) {
 
 		}
 
-		return tokens
+		let arraySinDuplicados = [...new Set(tokens)];
+		return arraySinDuplicados
 	} catch (error) {
 		console.error("Error durante el análisis léxico:", error.message);
 		return null;
@@ -687,29 +695,32 @@ function analizadorLexico(codigo) {
 
 }
 
-// const codigo = `
-// 	let _x = 10;
-// 	let _y = 10;
-// 	if (parseInt(_x) + 5 >= 30 || parseInt(_x) + 5 < 1 && parseInt(_y) = 30) {
-// 		/* Hola mundo */
-// 		// Aqui desde mañana 
-// 		_y = _x * 2
-// 		_y += _x * 2
-// 	} else if(parseInt(_x) + 5 * parseInt(_y) < 100){ 
-// 		_y = _x ** 2
-// 	} else { 
-// 		return "bye"
-// 	}
-// 	console.log(_y);
-// `
-
 const codigo = `
-	_z = 2 * 4
-	_r = _z ** 4
-	/** 
-	 * hola 
-	*/
+let _x = 10;
+let _y = 15;
+if (parseInt(_x) + 5 >= 30 || parseInt(_x) + 5 < 1 && parseInt(_y) = 30) {
+	 _y = _x * 2
+	 _y += _x * 2
+ } else if(parseInt(_x) + 5 * parseInt(_y) < 100){ 
+	 _y = _x ** 2
+ } else { 
+	 return "bye"
+ }  
 `
+
+// let _x = 10;
+// let _y = 15;
+// if (parseInt(_x) + 5 >= 30 || parseInt(_x) + 5 < 1 && parseInt(_y) = 30) {
+// 	/* Hola mundo */
+// 	 // Aqui desde mañana 
+// 	 _y = _x * 2
+// 	 _y += _x * 2
+//  } else if(parseInt(_x) + 5 * parseInt(_y) < 100){ 
+// 	 _y = _x ** 2
+//  } else { 
+// 	 return "bye"
+//  }
+//  console.log(_y);
   
 console.log(codigo);
 const tokens = analizadorLexico(codigo);
