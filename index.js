@@ -656,22 +656,20 @@ function analizadorLexico(codigo) {
 			const token = match[1] || match[2];
 
 			let unitario = filtroBusquedaUnitario(token).toString() // caracteres es 1
-			
+
 			if(unitario){
-				tokenCompuestoEvaluar = tokens[tokens.length - 1] + token
-				let compuesto = filtroBusquedaCompuesto(tokenCompuestoEvaluar).toString() // caracteres es 2,3,4
-				if(compuesto){
-					console.log(compuesto)
-					tokens[tokens.length - 1];
-					tokens.pop()
-					if(!tokens.find(obj => obj === compuesto)){
-						tokens.push(compuesto)
-					}
+
+				if(tokens.length >= 1){
+					newToken = unitario
+
+					tokenCompuestoEvaluar =  oldToken + newToken
+					let compuesto = filtroBusquedaCompuesto(tokenCompuestoEvaluar).toString() // caracteres es 2,3,4
+
 				}else{
-					if(!tokens.find(obj => obj === unitario)){
-						tokens.push(unitario)
-					}
+					oldToken = unitario
+					tokens.push(oldToken)
 				}
+
 			}else{
 				palabraCadena = "textoEnCadena"
 				if(!tokens.find(obj => obj === palabraCadena)){
@@ -708,6 +706,9 @@ function analizadorLexico(codigo) {
 const codigo = `
 	_z = 2 * 4
 	_r = _z ** 4
+	/** 
+	 * hola 
+	*/
 `
   
 console.log(codigo);
