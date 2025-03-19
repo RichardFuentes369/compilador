@@ -203,69 +203,70 @@ const tokenPalabrasReservadasPuntoComa = [
 const tokenOperadoresSimples = [
 	{
 		"tipo": "operador menor que",
-		"token": "[_t:[<]]",
-		"valor": "<",
+		"token": "operador_menor_que",
+		"valor": "<"
 	},
 	{
 		"tipo": "operador mayor que",
-		"token": "[_t:[>]]",
-		"valor": ">",
+		"token": "operador_mayor_que",
+		"valor": ">"
 	},
 	{
 		"tipo": "operador suma o concatenacion",
-		"token": "[_t:[+]]",
-		"valor": "+",
+		"token": "operador_suma_o_concatenacion",
+		"valor": "+"
 	},
 	{
 		"tipo": "operador resta",
-		"token": "[_t:[-]]",
-		"valor": "-",
+		"token": "operador_resta",
+		"valor": "-"
 	},
 	{
 		"tipo": "operador multiplicacion",
-		"token": "[_t:[*]]",
-		"valor": "*",
+		"token": "operador_multiplicacion",
+		"valor": "*"
 	},
 	{
 		"tipo": "operador dividiendo",
-		"token": "[_t:[/]]",
-		"valor": "/",
+		"token": "operador_dividiendo",
+		"valor": "/"
 	},
 	{
 		"tipo": "operador igualacion",
-		"token": "[_t:[=]]",
-		"valor": "=",
+		"token": "operador_igualacion",
+		"valor": "="
 	},
 	{
 		"tipo": "operador modulo",
-		"token": "[_t:[%]]",
-		"valor": "%",
+		"token": "operador_modulo",
+		"valor": "%"
 	},
 	{
 		"tipo": "operador ternario, si no o terminacion case",
-		"token": "[_t:[:]]",
-		"valor": ":",
+		"token": "operador_ternario",
+		"valor": ":"
 	},
 	{
 		"tipo": "operador entontes",
-		"token": "[_t:[?]]",
-		"valor": "?",
+		"token": "operador_entonces",
+		"valor": "?"
 	},
 	{
 		"tipo": "operador negacion",
-		"token": "[_t:[!]]",
-		"valor": "!",
+		"token": "operador_negacion",
+		"valor": "!"
 	},
 	{
 		"tipo": "operador or simple",
-		"token": "[_t:[|]]",
-		"valor": "|",
+		"token": "operador_or_simple",
+		"valor": "|"
 	},
 	{
 		"tipo": "operador and simple",
-		"token": "[_t:[&]]",
-		"valor": "&",
-	},
+		"token": "operador_and_simple",
+		"valor": "&"
+	}
+	
 ];
 
 const tokenCorchetes = [
