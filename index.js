@@ -4,301 +4,301 @@
 const tokenPalabrasReservadasPuntoComa = [
 	{
 		"tipo": "palabra reservada break",
-		"token": "[_t:[break]]",
+		"token": "palabra_reservada_break",
 		"valor": "break",
 	},
 	{
 		"tipo": "palabra reservada case",
-		"token": "[_t:[case]]",
-		"valor": "case",
+		"token": "palabra_reservada_case",
+		"valor": "case"
 	},
 	{
 		"tipo": "palabra reservada catch",
-		"token": "[_t:[catch]]",
-		"valor": "catch",
+		"token": "palabra_reservada_catch",
+		"valor": "catch"
 	},
 	{
 		"tipo": "palabra reservada class",
-		"token": "[_t:[class]]",
-		"valor": "class",
+		"token": "palabra_reservada_class",
+		"valor": "class"
 	},
 	{
 		"tipo": "palabra reservada const",
-		"token": "[_t:[const]]",
-		"valor": "const",
+		"token": "palabra_reservada_const",
+		"valor": "const"
 	},
 	{
 		"tipo": "palabra reservada continue",
-		"token": "[_t:[continue]]",
-		"valor": "continue",
+		"token": "palabra_reservada_continue",
+		"valor": "continue"
 	},
 	{
 		"tipo": "palabra reservada debugger",
-		"token": "[_t:[debugger]]",
-		"valor": "debugger",
+		"token": "palabra_reservada_debugger",
+		"valor": "debugger"
 	},
 	{
 		"tipo": "palabra reservada default",
-		"token": "[_t:[default]]",
-		"valor": "default",
+		"token": "palabra_reservada_default",
+		"valor": "default"
 	},
 	{
 		"tipo": "palabra reservada delete",
-		"token": "[_t:[delete]]",
-		"valor": "delete",
+		"token": "palabra_reservada_delete",
+		"valor": "delete"
 	},
 	{
 		"tipo": "palabra reservada do",
-		"token": "[_t:[do]]",
-		"valor": "do",
+		"token": "palabra_reservada_do",
+		"valor": "do"
 	},
 	{
 		"tipo": "palabra reservada else",
-		"token": "[_t:[else]]",
-		"valor": "else",
+		"token": "palabra_reservada_else",
+		"valor": "else"
 	},
 	{
 		"tipo": "palabra reservada export",
-		"token": "[_t:[export]]",
-		"valor": "export",
+		"token": "palabra_reservada_export",
+		"valor": "export"
 	},
 	{
 		"tipo": "palabra reservada extends",
-		"token": "[_t:[extends]]",
-		"valor": "extends",
+		"token": "palabra_reservada_extends",
+		"valor": "extends"
 	},
 	{
 		"tipo": "palabra reservada finally",
-		"token": "[_t:[finally]]",
-		"valor": "finally",
+		"token": "palabra_reservada_finally",
+		"valor": "finally"
 	},
 	{
 		"tipo": "palabra reservada for",
-		"token": "[_t:[for]]",
-		"valor": "for",
+		"token": "palabra_reservada_for",
+		"valor": "for"
 	},
 	{
 		"tipo": "palabra reservada function",
-		"token": "[_t:[function]]",
-		"valor": "function",
+		"token": "palabra_reservada_function",
+		"valor": "function"
 	},
 	{
 		"tipo": "palabra reservada if",
-		"token": "[_t:[if]]",
-		"valor": "if",
+		"token": "palabra_reservada_if",
+		"valor": "if"
 	},
 	{
 		"tipo": "palabra reservada import",
-		"token": "[_t:[import]]",
-		"valor": "import",
+		"token": "palabra_reservada_import",
+		"valor": "import"
 	},
 	{
 		"tipo": "palabra reservada in",
-		"token": "[_t:[in]]",
-		"valor": "in",
+		"token": "palabra_reservada_in",
+		"valor": "in"
 	},
 	{
 		"tipo": "palabra reservada let",
-		"token": "[_t:[let]]",
-		"valor": "let",
+		"token": "palabra_reservada_let",
+		"valor": "let"
 	},
 	{
 		"tipo": "palabra reservada of",
-		"token": "[_t:[of]]",
-		"valor": "of",
+		"token": "palabra_reservada_of",
+		"valor": "of"
 	},
 	{
 		"tipo": "palabra reservada instanceof",
-		"token": "[_t:[instanceof]]",
-		"valor": "instanceof",
+		"token": "palabra_reservada_instanceof",
+		"valor": "instanceof"
 	},
 	{
 		"tipo": "palabra reservada new",
-		"token": "[_t:[new]]",
-		"valor": "new",
+		"token": "palabra_reservada_new",
+		"valor": "new"
 	},
 	{
 		"tipo": "palabra reservada return",
-		"token": "[_t:[return]]",
-		"valor": "return",
+		"token": "palabra_reservada_return",
+		"valor": "return"
 	},
 	{
 		"tipo": "palabra reservada super",
-		"token": "[_t:[super]]",
-		"valor": "super",
+		"token": "palabra_reservada_super",
+		"valor": "super"
 	},
 	{
 		"tipo": "palabra reservada switch",
-		"token": "[_t:[switch]]",
-		"valor": "switch",
+		"token": "palabra_reservada_switch",
+		"valor": "switch"
 	},
 	{
 		"tipo": "palabra reservada this",
-		"token": "[_t:[this]]",
-		"valor": "this",
+		"token": "palabra_reservada_this",
+		"valor": "this"
 	},
 	{
 		"tipo": "palabra reservada throw",
-		"token": "[_t:[throw]]",
-		"valor": "throw",
+		"token": "palabra_reservada_throw",
+		"valor": "throw"
 	},
 	{
 		"tipo": "palabra reservada try",
-		"token": "[_t:[try]]",
-		"valor": "try",
+		"token": "palabra_reservada_try",
+		"valor": "try"
 	},
 	{
 		"tipo": "palabra reservada typeof",
-		"token": "[_t:[typeof]]",
-		"valor": "typeof",
+		"token": "palabra_reservada_typeof",
+		"valor": "typeof"
 	},
 	{
 		"tipo": "palabra reservada var",
-		"token": "[_t:[var]]",
-		"valor": "var",
+		"token": "palabra_reservada_var",
+		"valor": "var"
 	},
 	{
 		"tipo": "palabra reservada void",
-		"token": "[_t:[void]]",
-		"valor": "void",
+		"token": "palabra_reservada_void",
+		"valor": "void"
 	},
 	{
 		"tipo": "palabra reservada while",
-		"token": "[_t:[while]]",
-		"valor": "while",
+		"token": "palabra_reservada_while",
+		"valor": "while"
 	},
 	{
 		"tipo": "palabra reservada with",
-		"token": "[_t:[with]]",
-		"valor": "with",
+		"token": "palabra_reservada_with",
+		"valor": "with"
 	},
 	{
 		"tipo": "palabra reservada yield",
-		"token": "[_t:[yield]]",
-		"valor": "yield",
+		"token": "palabra_reservada_yield",
+		"valor": "yield"
 	},
 	{
 		"tipo": "palabra reservada parseInt",
-		"token": "[_t:[parseInt]]",
-		"valor": "parseInt",
+		"token": "palabra_reservada_parseInt",
+		"valor": "parseInt"
 	},
 	{
 		"tipo": "palabra reservada parseFloat",
-		"token": "[_t:[parseFloat]]",
-		"valor": "parseFloat",
+		"token": "palabra_reservada_parseFloat",
+		"valor": "parseFloat"
 	},
 	{
 		"tipo": "simbolo reservado ;",
-		"descripcion": "indica que se le dio valor a una variable",
-		"token": "[_t:[;]]",
-		"valor": ";",
+		"token": "simbolo_reservado_punto_y_coma",
+		"valor": ";"
 	},
 	{
 		"tipo": "simbolo reservado .",
-		"descripcion": "indica que entrara a los valores de un objeto",
-		"token": "[_t:[.]]",
-		"valor": ".",
-	},
+		"token": "simbolo_reservado_punto",
+		"valor": "."
+	}
+	
 ];
 
 const tokenOperadoresSimples = [
 	{
 		"tipo": "operador menor que",
-		"token": "[_t:[<]]",
-		"valor": "<",
+		"token": "operador_menor_que",
+		"valor": "<"
 	},
 	{
 		"tipo": "operador mayor que",
-		"token": "[_t:[>]]",
-		"valor": ">",
+		"token": "operador_mayor_que",
+		"valor": ">"
 	},
 	{
 		"tipo": "operador suma o concatenacion",
-		"token": "[_t:[+]]",
-		"valor": "+",
+		"token": "operador_suma_o_concatenacion",
+		"valor": "+"
 	},
 	{
 		"tipo": "operador resta",
-		"token": "[_t:[-]]",
-		"valor": "-",
+		"token": "operador_resta",
+		"valor": "-"
 	},
 	{
 		"tipo": "operador multiplicacion",
-		"token": "[_t:[*]]",
-		"valor": "*",
+		"token": "operador_multiplicacion",
+		"valor": "*"
 	},
 	{
 		"tipo": "operador dividiendo",
-		"token": "[_t:[/]]",
-		"valor": "/",
+		"token": "operador_dividiendo",
+		"valor": "/"
 	},
 	{
-		"tipo": "operador igualacion",
-		"token": "[_t:[=]]",
-		"valor": "=",
+		"tipo": "operador igualdad",
+		"token": "operador_igualdad",
+		"valor": "="
 	},
 	{
 		"tipo": "operador modulo",
-		"token": "[_t:[%]]",
-		"valor": "%",
+		"token": "operador_modulo",
+		"valor": "%"
 	},
 	{
 		"tipo": "operador ternario, si no o terminacion case",
-		"token": "[_t:[:]]",
-		"valor": ":",
+		"token": "operador_ternario",
+		"valor": ":"
 	},
 	{
 		"tipo": "operador entontes",
-		"token": "[_t:[?]]",
-		"valor": "?",
+		"token": "operador_entonces",
+		"valor": "?"
 	},
 	{
 		"tipo": "operador negacion",
-		"token": "[_t:[!]]",
-		"valor": "!",
+		"token": "operador_negacion",
+		"valor": "!"
 	},
 	{
 		"tipo": "operador or simple",
-		"token": "[_t:[|]]",
-		"valor": "|",
+		"token": "operador_or_simple",
+		"valor": "|"
 	},
 	{
 		"tipo": "operador and simple",
-		"token": "[_t:[&]]",
-		"valor": "&",
-	},
+		"token": "operador_and_simple",
+		"valor": "&"
+	}
+	
 ];
 
 const tokenCorchetes = [
 	{
-		"tipo": "llave abre",
-		"token": "[_t:[{]]",
-		"valor": "{",
-	},
-	{
-		"tipo": "llave cierra",
-		"token": "[_t:[}]]",
-		"valor": "}",
-	},
-	{
 		"tipo": "parentesis abre",
-		"token": "[_t:[(]]",
-		"valor": "(",
+		"token": "abre_parentesis",
+		"valor": "("
 	},
 	{
 		"tipo": "parentesis cierra",
-		"token": "[_t:[)]]",
-		"valor": ")",
+		"token": "cierra_parentesis",
+		"valor": ")"
 	},
 	{
 		"tipo": "corchete abre",
-		"token": "[_t:[[]]",
-		"valor": "[",
+		"token": "abre_corchete",
+		"valor": "["
 	},
 	{
 		"tipo": "corchete cierra",
-		"token": "[_t:[]]]",
-		"valor": "]",
+		"token": "cierra_corchete",
+		"valor": "]"
+	},
+	{
+		"tipo": "llave abre",
+		"token": "abre_llave",
+		"valor": "{"
+	},
+	{
+		"tipo": "llave cierra",
+		"token": "cierra_llave",
+		"valor": "}"
 	},
 ];
 
@@ -323,259 +323,263 @@ const tokenCadenaImpresion = [
 const tokenOperadoresCompuestos = [
 	{
 		"tipo": "operacion suma",
-		"token": "[_t:[+=]]",
-		"valor": "+=",
+		"token": "suma_asignacion",
+		"valor": "+="
 	},
 	{
 		"tipo": "operacion resta",
-		"token": "[_t:[-=]]",
-		"valor": "-=",
+		"token": "resta_asignacion",
+		"valor": "-="
 	},
 	{
 		"tipo": "operacion multiplicacion",
-		"token": "[_t:[*=]]",
-		"valor": "*=",
+		"token": "multiplicacion_asignacion",
+		"valor": "*="
 	},
 	{
 		"tipo": "operacion division",
-		"token": "[_t:[/=]]",
-		"valor": "/=",
+		"token": "division_asignacion",
+		"valor": "/="
 	},
 	{
 		"tipo": "operacion modulo",
-		"token": "[_t:[%=]]",
-		"valor": "%=",
+		"token": "modulo_asignacion",
+		"valor": "%="
 	},
 	{
 		"tipo": "operacion mayor igual",
-		"token": "[_t:[>=]]",
-		"valor": ">=",
+		"token": "mayor_igual",
+		"valor": ">="
 	},
 	{
 		"tipo": "operacion menor igual",
-		"token": "[_t:[<=]]",
-		"valor": "<=",
+		"token": "menor_igual",
+		"valor": "<="
 	},
 	{
 		"tipo": "operacion exponente",
-		"token": "[_t:[**=]]",
-		"valor": "**=",
+		"token": "exponente_asignacion",
+		"valor": "**="
 	},
 	{
 		"tipo": "operacion suma",
-		"token": "[_t:[++]]",
-		"valor": "++",
+		"token": "incremento",
+		"valor": "++"
 	},
 	{
 		"tipo": "operacion resta",
-		"token": "[_t:[--]]",
-		"valor": "--",
+		"token": "decremento",
+		"valor": "--"
 	},
 	{
 		"tipo": "operacion exponente",
-		"token": "[_t:[**]]",
-		"valor": "**",
+		"token": "exponente",
+		"valor": "**"
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[<<=]]",
-		"valor": "<<=",
+		"token": "desplazamiento_izquierda_asignacion",
+		"valor": "<<="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[>>=]]",
-		"valor": ">>=",
+		"token": "desplazamiento_derecha_asignacion",
+		"valor": ">>="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[>>>=]]",
-		"valor": ">>>=",
+		"token": "desplazamiento_derecha_logico_asignacion",
+		"valor": ">>>="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[&=]]",
-		"valor": "&=",
+		"token": "and_binario_asignacion",
+		"valor": "&="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[^=]]",
-		"valor": "^=",
+		"token": "xor_asignacion",
+		"valor": "^="
 	},
 	{
 		"tipo": "operacion or compuesto",
-		"token": "[_t:[||]]",
-		"valor": "||",
+		"token": "or_logico",
+		"valor": "||"
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[|=]]",
-		"valor": "|=",
+		"token": "or_binario_asignacion",
+		"valor": "|="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[||=]]",
-		"valor": "||=",
+		"token": "or_logico_asignacion",
+		"valor": "||="
 	},
 	{
 		"tipo": "operacion and compuesta",
-		"token": "[_t:[&&]]",
-		"valor": "&&",
+		"token": "and_logico",
+		"valor": "&&"
 	},
 	{
-		"token": "[_t:[??=]]",
-		"valor": "??=",
-	},
+		"tipo": "operacion asignacion compuesta",
+		"token": "nullish_asignacion",
+		"valor": "??="
+	}
+	
 ];
 
 const tokenComentarioCompuestos = [
 	{
 		"tipo": "Apertura de comentario, ignorado por interprete",
-		"token": "[_t:['/*']]",
-		"valor": "/*",
+		"token": "apertura_comentario_multilinea",
+		"valor": "/*"
 	},
 	{
 		"tipo": "Cierre de comentario, ignorado por interprete",
-		"token": "[_t:['*/']]",
-		"valor": "*/",
+		"token": "cierre_comentario_multilinea",
+		"valor": "*/"
 	},
 	{
 		"tipo": "Apertura de comentario, en una sola linea",
-		"token": "[_t:['//']]",
-		"valor": "//",
+		"token": "comentario_sola_linea",
+		"valor": "//"
 	},
 	{
 		"tipo": "Apertura de comentario de documentacion, ignorado por interprete",
-		"token": "[_t:['/**']]",
-		"valor": "/**",
-	},
+		"token": "comentario_documentacion",
+		"valor": "/**"
+	}
+	
 ];
 
 const tokenMetodosConsoleCompuestos = [
 	{
 		"tipo": "consolelog",
-		"token": "[_t:['console.log']]",
-		"valor": "console.log",
+		"token": "console_log",
+		"valor": "console.log"
 	},
 	{
 		"tipo": "consoleinfo",
-		"token": "[_t:['console.info']]",
+		"token": "console_info",
 		"valor": "console.info"
 	},
 	{
 		"tipo": "consolewarn",
-		"token": "[_t:['console.warn']]",
+		"token": "console_warn",
 		"valor": "console.warn"
 	},
 	{
 		"tipo": "consoleerror",
-		"token": "[_t:['console.error']]",
+		"token": "console_error",
 		"valor": "console.error"
 	},
 	{
 		"tipo": "consoledebug",
-		"token": "[_t:['console.debug']]",
+		"token": "console_debug",
 		"valor": "console.debug"
 	},
 	{
 		"tipo": "consoletrace",
-		"token": "[_t:['console.trace']]",
+		"token": "console_trace",
 		"valor": "console.trace"
 	},
 	{
 		"tipo": "consoletime",
-		"token": "[_t:['console.time']]",
+		"token": "console_time",
 		"valor": "console.time"
 	},
 	{
 		"tipo": "consoletimeEnd",
-		"token": "[_t:['console.timeEnd']]",
+		"token": "console_time_end",
 		"valor": "console.timeEnd"
 	},
 	{
 		"tipo": "consoletimeLog",
-		"token": "[_t:['console.timeLog']]",
+		"token": "console_time_log",
 		"valor": "console.timeLog"
 	},
 	{
 		"tipo": "consolegroup",
-		"token": "[_t:['console.group']]",
+		"token": "console_group",
 		"valor": "console.group"
 	},
 	{
 		"tipo": "consolegroupCollapsed",
-		"token": "[_t:['console.groupCollapsed']]",
+		"token": "console_group_collapsed",
 		"valor": "console.groupCollapsed"
 	},
 	{
 		"tipo": "consolegroupEnd",
-		"token": "[_t:['console.groupEnd']]",
+		"token": "console_group_end",
 		"valor": "console.groupEnd"
 	},
 	{
 		"tipo": "consolecount",
-		"token": "[_t:['console.count']]",
+		"token": "console_count",
 		"valor": "console.count"
 	},
 	{
 		"tipo": "consolecountReset",
-		"token": "[_t:['console.countReset']]",
+		"token": "console_count_reset",
 		"valor": "console.countReset"
 	},
 	{
 		"tipo": "consoletable",
-		"token": "[_t:['console.table']]",
+		"token": "console_table",
 		"valor": "console.table"
 	},
 	{
 		"tipo": "consoledir",
-		"token": "[_t:['console.dir']]",
+		"token": "console_dir",
 		"valor": "console.dir"
 	},
 	{
 		"tipo": "consoledirxml",
-		"token": "[_t:['console.dirxml']]",
+		"token": "console_dirxml",
 		"valor": "console.dirxml"
 	},
 	{
 		"tipo": "consoleassert",
-		"token": "[_t:['console.assert']]",
+		"token": "console_assert",
 		"valor": "console.assert"
 	},
 	{
 		"tipo": "consoleclear",
-		"token": "[_t:['console.clear']]",
+		"token": "console_clear",
 		"valor": "console.clear"
 	},
 	{
 		"tipo": "consoleprofile",
-		"token": "[_t:['console.profile']]",
+		"token": "console_profile",
 		"valor": "console.profile"
 	},
 	{
 		"tipo": "consoleprofileEnd",
-		"token": "[_t:['console.profileEnd']]",
+		"token": "console_profile_end",
 		"valor": "console.profileEnd"
 	},
 	{
 		"tipo": "consolememory",
-		"token": "[_t:['console.memory']]",
+		"token": "console_memory",
 		"valor": "console.memory"
 	},
 	{
 		"tipo": "consoleexception",
-		"token": "[_t:['console.exception']]",
+		"token": "console_exception",
 		"valor": "console.exception"
 	},
 	{
 		"tipo": "consolemarkTimeline",
-		"token": "[_t:['console.markTimeline']]",
+		"token": "console_mark_timeline",
 		"valor": "console.markTimeline"
 	},
 	{
 		"tipo": "consoletimeStamp",
-		"token": "[_t:['console.timeStamp']]",
+		"token": "console_time_stamp",
 		"valor": "console.timeStamp"
 	}
+	
 ];
 
 function filtroBusquedaUnitario(valorBusqueda) {
