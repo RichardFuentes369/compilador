@@ -232,8 +232,8 @@ const tokenOperadoresSimples = [
 		"valor": "/"
 	},
 	{
-		"tipo": "operador igualacion",
-		"token": "operador_igualacion",
+		"tipo": "operador igualdad",
+		"token": "operador_igualdad",
 		"valor": "="
 	},
 	{
@@ -271,34 +271,34 @@ const tokenOperadoresSimples = [
 
 const tokenCorchetes = [
 	{
-		"tipo": "llave abre",
-		"token": "[_t:[{]]",
-		"valor": "{",
-	},
-	{
-		"tipo": "llave cierra",
-		"token": "llave_cierra",
-		"valor": "}",
-	},
-	{
 		"tipo": "parentesis abre",
-		"token": "[_t:[(]]",
-		"valor": "(",
+		"token": "abre_parentesis",
+		"valor": "("
 	},
 	{
 		"tipo": "parentesis cierra",
-		"token": "[_t:[)]]",
-		"valor": ")",
+		"token": "cierra_parentesis",
+		"valor": ")"
 	},
 	{
 		"tipo": "corchete abre",
-		"token": "[_t:[[]]",
-		"valor": "[",
+		"token": "abre_corchete",
+		"valor": "["
 	},
 	{
 		"tipo": "corchete cierra",
-		"token": "[_t:[]]]",
-		"valor": "]",
+		"token": "cierra_corchete",
+		"valor": "]"
+	},
+	{
+		"tipo": "llave abre",
+		"token": "abre_llave",
+		"valor": "{"
+	},
+	{
+		"tipo": "llave cierra",
+		"token": "cierra_llave",
+		"valor": "}"
 	},
 ];
 
