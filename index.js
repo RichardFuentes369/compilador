@@ -4,201 +4,200 @@
 const tokenPalabrasReservadasPuntoComa = [
 	{
 		"tipo": "palabra reservada break",
-		"token": "[_t:[break]]",
+		"token": "palabra_reservada_break",
 		"valor": "break",
 	},
 	{
 		"tipo": "palabra reservada case",
-		"token": "[_t:[case]]",
-		"valor": "case",
+		"token": "palabra_reservada_case",
+		"valor": "case"
 	},
 	{
 		"tipo": "palabra reservada catch",
-		"token": "[_t:[catch]]",
-		"valor": "catch",
+		"token": "palabra_reservada_catch",
+		"valor": "catch"
 	},
 	{
 		"tipo": "palabra reservada class",
-		"token": "[_t:[class]]",
-		"valor": "class",
+		"token": "palabra_reservada_class",
+		"valor": "class"
 	},
 	{
 		"tipo": "palabra reservada const",
-		"token": "[_t:[const]]",
-		"valor": "const",
+		"token": "palabra_reservada_const",
+		"valor": "const"
 	},
 	{
 		"tipo": "palabra reservada continue",
-		"token": "[_t:[continue]]",
-		"valor": "continue",
+		"token": "palabra_reservada_continue",
+		"valor": "continue"
 	},
 	{
 		"tipo": "palabra reservada debugger",
-		"token": "[_t:[debugger]]",
-		"valor": "debugger",
+		"token": "palabra_reservada_debugger",
+		"valor": "debugger"
 	},
 	{
 		"tipo": "palabra reservada default",
-		"token": "[_t:[default]]",
-		"valor": "default",
+		"token": "palabra_reservada_default",
+		"valor": "default"
 	},
 	{
 		"tipo": "palabra reservada delete",
-		"token": "[_t:[delete]]",
-		"valor": "delete",
+		"token": "palabra_reservada_delete",
+		"valor": "delete"
 	},
 	{
 		"tipo": "palabra reservada do",
-		"token": "[_t:[do]]",
-		"valor": "do",
+		"token": "palabra_reservada_do",
+		"valor": "do"
 	},
 	{
 		"tipo": "palabra reservada else",
-		"token": "[_t:[else]]",
-		"valor": "else",
+		"token": "palabra_reservada_else",
+		"valor": "else"
 	},
 	{
 		"tipo": "palabra reservada export",
-		"token": "[_t:[export]]",
-		"valor": "export",
+		"token": "palabra_reservada_export",
+		"valor": "export"
 	},
 	{
 		"tipo": "palabra reservada extends",
-		"token": "[_t:[extends]]",
-		"valor": "extends",
+		"token": "palabra_reservada_extends",
+		"valor": "extends"
 	},
 	{
 		"tipo": "palabra reservada finally",
-		"token": "[_t:[finally]]",
-		"valor": "finally",
+		"token": "palabra_reservada_finally",
+		"valor": "finally"
 	},
 	{
 		"tipo": "palabra reservada for",
-		"token": "[_t:[for]]",
-		"valor": "for",
+		"token": "palabra_reservada_for",
+		"valor": "for"
 	},
 	{
 		"tipo": "palabra reservada function",
-		"token": "[_t:[function]]",
-		"valor": "function",
+		"token": "palabra_reservada_function",
+		"valor": "function"
 	},
 	{
 		"tipo": "palabra reservada if",
-		"token": "[_t:[if]]",
-		"valor": "if",
+		"token": "palabra_reservada_if",
+		"valor": "if"
 	},
 	{
 		"tipo": "palabra reservada import",
-		"token": "[_t:[import]]",
-		"valor": "import",
+		"token": "palabra_reservada_import",
+		"valor": "import"
 	},
 	{
 		"tipo": "palabra reservada in",
-		"token": "[_t:[in]]",
-		"valor": "in",
+		"token": "palabra_reservada_in",
+		"valor": "in"
 	},
 	{
 		"tipo": "palabra reservada let",
-		"token": "[_t:[let]]",
-		"valor": "let",
+		"token": "palabra_reservada_let",
+		"valor": "let"
 	},
 	{
 		"tipo": "palabra reservada of",
-		"token": "[_t:[of]]",
-		"valor": "of",
+		"token": "palabra_reservada_of",
+		"valor": "of"
 	},
 	{
 		"tipo": "palabra reservada instanceof",
-		"token": "[_t:[instanceof]]",
-		"valor": "instanceof",
+		"token": "palabra_reservada_instanceof",
+		"valor": "instanceof"
 	},
 	{
 		"tipo": "palabra reservada new",
-		"token": "[_t:[new]]",
-		"valor": "new",
+		"token": "palabra_reservada_new",
+		"valor": "new"
 	},
 	{
 		"tipo": "palabra reservada return",
-		"token": "[_t:[return]]",
-		"valor": "return",
+		"token": "palabra_reservada_return",
+		"valor": "return"
 	},
 	{
 		"tipo": "palabra reservada super",
-		"token": "[_t:[super]]",
-		"valor": "super",
+		"token": "palabra_reservada_super",
+		"valor": "super"
 	},
 	{
 		"tipo": "palabra reservada switch",
-		"token": "[_t:[switch]]",
-		"valor": "switch",
+		"token": "palabra_reservada_switch",
+		"valor": "switch"
 	},
 	{
 		"tipo": "palabra reservada this",
-		"token": "[_t:[this]]",
-		"valor": "this",
+		"token": "palabra_reservada_this",
+		"valor": "this"
 	},
 	{
 		"tipo": "palabra reservada throw",
-		"token": "[_t:[throw]]",
-		"valor": "throw",
+		"token": "palabra_reservada_throw",
+		"valor": "throw"
 	},
 	{
 		"tipo": "palabra reservada try",
-		"token": "[_t:[try]]",
-		"valor": "try",
+		"token": "palabra_reservada_try",
+		"valor": "try"
 	},
 	{
 		"tipo": "palabra reservada typeof",
-		"token": "[_t:[typeof]]",
-		"valor": "typeof",
+		"token": "palabra_reservada_typeof",
+		"valor": "typeof"
 	},
 	{
 		"tipo": "palabra reservada var",
-		"token": "[_t:[var]]",
-		"valor": "var",
+		"token": "palabra_reservada_var",
+		"valor": "var"
 	},
 	{
 		"tipo": "palabra reservada void",
-		"token": "[_t:[void]]",
-		"valor": "void",
+		"token": "palabra_reservada_void",
+		"valor": "void"
 	},
 	{
 		"tipo": "palabra reservada while",
-		"token": "[_t:[while]]",
-		"valor": "while",
+		"token": "palabra_reservada_while",
+		"valor": "while"
 	},
 	{
 		"tipo": "palabra reservada with",
-		"token": "[_t:[with]]",
-		"valor": "with",
+		"token": "palabra_reservada_with",
+		"valor": "with"
 	},
 	{
 		"tipo": "palabra reservada yield",
-		"token": "[_t:[yield]]",
-		"valor": "yield",
+		"token": "palabra_reservada_yield",
+		"valor": "yield"
 	},
 	{
 		"tipo": "palabra reservada parseInt",
-		"token": "[_t:[parseInt]]",
-		"valor": "parseInt",
+		"token": "palabra_reservada_parseInt",
+		"valor": "parseInt"
 	},
 	{
 		"tipo": "palabra reservada parseFloat",
-		"token": "[_t:[parseFloat]]",
-		"valor": "parseFloat",
+		"token": "palabra_reservada_parseFloat",
+		"valor": "parseFloat"
 	},
 	{
 		"tipo": "simbolo reservado ;",
-		"descripcion": "indica que se le dio valor a una variable",
-		"token": "[_t:[;]]",
-		"valor": ";",
+		"token": "simbolo_reservado_punto_y_coma",
+		"valor": ";"
 	},
 	{
 		"tipo": "simbolo reservado .",
-		"descripcion": "indica que entrara a los valores de un objeto",
-		"token": "[_t:[.]]",
-		"valor": ".",
-	},
+		"token": "simbolo_reservado_punto",
+		"valor": "."
+	}
+	
 ];
 
 const tokenOperadoresSimples = [
@@ -277,7 +276,7 @@ const tokenCorchetes = [
 	},
 	{
 		"tipo": "llave cierra",
-		"token": "[_t:[}]]",
+		"token": "llave_cierra",
 		"valor": "}",
 	},
 	{
@@ -333,7 +332,7 @@ const tokenOperadoresCompuestos = [
 	},
 	{
 		"tipo": "operacion multiplicacion",
-		"token": "[_t:[*=]]",
+		"token": "[_t:[*=]]", //cambio esta linea?? es esta monda ?
 		"valor": "*=",
 	},
 	{
