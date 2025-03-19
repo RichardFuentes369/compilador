@@ -323,108 +323,110 @@ const tokenCadenaImpresion = [
 const tokenOperadoresCompuestos = [
 	{
 		"tipo": "operacion suma",
-		"token": "[_t:[+=]]",
-		"valor": "+=",
+		"token": "suma_asignacion",
+		"valor": "+="
 	},
 	{
 		"tipo": "operacion resta",
-		"token": "[_t:[-=]]",
-		"valor": "-=",
+		"token": "resta_asignacion",
+		"valor": "-="
 	},
 	{
 		"tipo": "operacion multiplicacion",
-		"token": "[_t:[*=]]", //cambio esta linea?? es esta monda ?
-		"valor": "*=",
+		"token": "multiplicacion_asignacion",
+		"valor": "*="
 	},
 	{
 		"tipo": "operacion division",
-		"token": "[_t:[/=]]",
-		"valor": "/=",
+		"token": "division_asignacion",
+		"valor": "/="
 	},
 	{
 		"tipo": "operacion modulo",
-		"token": "[_t:[%=]]",
-		"valor": "%=",
+		"token": "modulo_asignacion",
+		"valor": "%="
 	},
 	{
 		"tipo": "operacion mayor igual",
-		"token": "[_t:[>=]]",
-		"valor": ">=",
+		"token": "mayor_igual",
+		"valor": ">="
 	},
 	{
 		"tipo": "operacion menor igual",
-		"token": "[_t:[<=]]",
-		"valor": "<=",
+		"token": "menor_igual",
+		"valor": "<="
 	},
 	{
 		"tipo": "operacion exponente",
-		"token": "[_t:[**=]]",
-		"valor": "**=",
+		"token": "exponente_asignacion",
+		"valor": "**="
 	},
 	{
 		"tipo": "operacion suma",
-		"token": "[_t:[++]]",
-		"valor": "++",
+		"token": "incremento",
+		"valor": "++"
 	},
 	{
 		"tipo": "operacion resta",
-		"token": "[_t:[--]]",
-		"valor": "--",
+		"token": "decremento",
+		"valor": "--"
 	},
 	{
 		"tipo": "operacion exponente",
-		"token": "[_t:[**]]",
-		"valor": "**",
+		"token": "exponente",
+		"valor": "**"
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[<<=]]",
-		"valor": "<<=",
+		"token": "desplazamiento_izquierda_asignacion",
+		"valor": "<<="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[>>=]]",
-		"valor": ">>=",
+		"token": "desplazamiento_derecha_asignacion",
+		"valor": ">>="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[>>>=]]",
-		"valor": ">>>=",
+		"token": "desplazamiento_derecha_logico_asignacion",
+		"valor": ">>>="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[&=]]",
-		"valor": "&=",
+		"token": "and_binario_asignacion",
+		"valor": "&="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[^=]]",
-		"valor": "^=",
+		"token": "xor_asignacion",
+		"valor": "^="
 	},
 	{
 		"tipo": "operacion or compuesto",
-		"token": "[_t:[||]]",
-		"valor": "||",
+		"token": "or_logico",
+		"valor": "||"
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[|=]]",
-		"valor": "|=",
+		"token": "or_binario_asignacion",
+		"valor": "|="
 	},
 	{
 		"tipo": "operacion asignacion compuesta",
-		"token": "[_t:[||=]]",
-		"valor": "||=",
+		"token": "or_logico_asignacion",
+		"valor": "||="
 	},
 	{
 		"tipo": "operacion and compuesta",
-		"token": "[_t:[&&]]",
-		"valor": "&&",
+		"token": "and_logico",
+		"valor": "&&"
 	},
 	{
-		"token": "[_t:[??=]]",
-		"valor": "??=",
-	},
+		"tipo": "operacion asignacion compuesta",
+		"token": "nullish_asignacion",
+		"valor": "??="
+	}
+	
 ];
 
 const tokenComentarioCompuestos = [
