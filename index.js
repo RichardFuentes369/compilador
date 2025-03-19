@@ -432,152 +432,154 @@ const tokenOperadoresCompuestos = [
 const tokenComentarioCompuestos = [
 	{
 		"tipo": "Apertura de comentario, ignorado por interprete",
-		"token": "[_t:['/*']]",
-		"valor": "/*",
+		"token": "apertura_comentario_multilinea",
+		"valor": "/*"
 	},
 	{
 		"tipo": "Cierre de comentario, ignorado por interprete",
-		"token": "[_t:['*/']]",
-		"valor": "*/",
+		"token": "cierre_comentario_multilinea",
+		"valor": "*/"
 	},
 	{
 		"tipo": "Apertura de comentario, en una sola linea",
-		"token": "[_t:['//']]",
-		"valor": "//",
+		"token": "comentario_sola_linea",
+		"valor": "//"
 	},
 	{
 		"tipo": "Apertura de comentario de documentacion, ignorado por interprete",
-		"token": "[_t:['/**']]",
-		"valor": "/**",
-	},
+		"token": "comentario_documentacion",
+		"valor": "/**"
+	}
+	
 ];
 
 const tokenMetodosConsoleCompuestos = [
 	{
 		"tipo": "consolelog",
-		"token": "[_t:['console.log']]",
-		"valor": "console.log",
+		"token": "console_log",
+		"valor": "console.log"
 	},
 	{
 		"tipo": "consoleinfo",
-		"token": "[_t:['console.info']]",
+		"token": "console_info",
 		"valor": "console.info"
 	},
 	{
 		"tipo": "consolewarn",
-		"token": "[_t:['console.warn']]",
+		"token": "console_warn",
 		"valor": "console.warn"
 	},
 	{
 		"tipo": "consoleerror",
-		"token": "[_t:['console.error']]",
+		"token": "console_error",
 		"valor": "console.error"
 	},
 	{
 		"tipo": "consoledebug",
-		"token": "[_t:['console.debug']]",
+		"token": "console_debug",
 		"valor": "console.debug"
 	},
 	{
 		"tipo": "consoletrace",
-		"token": "[_t:['console.trace']]",
+		"token": "console_trace",
 		"valor": "console.trace"
 	},
 	{
 		"tipo": "consoletime",
-		"token": "[_t:['console.time']]",
+		"token": "console_time",
 		"valor": "console.time"
 	},
 	{
 		"tipo": "consoletimeEnd",
-		"token": "[_t:['console.timeEnd']]",
+		"token": "console_time_end",
 		"valor": "console.timeEnd"
 	},
 	{
 		"tipo": "consoletimeLog",
-		"token": "[_t:['console.timeLog']]",
+		"token": "console_time_log",
 		"valor": "console.timeLog"
 	},
 	{
 		"tipo": "consolegroup",
-		"token": "[_t:['console.group']]",
+		"token": "console_group",
 		"valor": "console.group"
 	},
 	{
 		"tipo": "consolegroupCollapsed",
-		"token": "[_t:['console.groupCollapsed']]",
+		"token": "console_group_collapsed",
 		"valor": "console.groupCollapsed"
 	},
 	{
 		"tipo": "consolegroupEnd",
-		"token": "[_t:['console.groupEnd']]",
+		"token": "console_group_end",
 		"valor": "console.groupEnd"
 	},
 	{
 		"tipo": "consolecount",
-		"token": "[_t:['console.count']]",
+		"token": "console_count",
 		"valor": "console.count"
 	},
 	{
 		"tipo": "consolecountReset",
-		"token": "[_t:['console.countReset']]",
+		"token": "console_count_reset",
 		"valor": "console.countReset"
 	},
 	{
 		"tipo": "consoletable",
-		"token": "[_t:['console.table']]",
+		"token": "console_table",
 		"valor": "console.table"
 	},
 	{
 		"tipo": "consoledir",
-		"token": "[_t:['console.dir']]",
+		"token": "console_dir",
 		"valor": "console.dir"
 	},
 	{
 		"tipo": "consoledirxml",
-		"token": "[_t:['console.dirxml']]",
+		"token": "console_dirxml",
 		"valor": "console.dirxml"
 	},
 	{
 		"tipo": "consoleassert",
-		"token": "[_t:['console.assert']]",
+		"token": "console_assert",
 		"valor": "console.assert"
 	},
 	{
 		"tipo": "consoleclear",
-		"token": "[_t:['console.clear']]",
+		"token": "console_clear",
 		"valor": "console.clear"
 	},
 	{
 		"tipo": "consoleprofile",
-		"token": "[_t:['console.profile']]",
+		"token": "console_profile",
 		"valor": "console.profile"
 	},
 	{
 		"tipo": "consoleprofileEnd",
-		"token": "[_t:['console.profileEnd']]",
+		"token": "console_profile_end",
 		"valor": "console.profileEnd"
 	},
 	{
 		"tipo": "consolememory",
-		"token": "[_t:['console.memory']]",
+		"token": "console_memory",
 		"valor": "console.memory"
 	},
 	{
 		"tipo": "consoleexception",
-		"token": "[_t:['console.exception']]",
+		"token": "console_exception",
 		"valor": "console.exception"
 	},
 	{
 		"tipo": "consolemarkTimeline",
-		"token": "[_t:['console.markTimeline']]",
+		"token": "console_mark_timeline",
 		"valor": "console.markTimeline"
 	},
 	{
 		"tipo": "consoletimeStamp",
-		"token": "[_t:['console.timeStamp']]",
+		"token": "console_time_stamp",
 		"valor": "console.timeStamp"
 	}
+	
 ];
 
 function filtroBusquedaUnitario(valorBusqueda) {
