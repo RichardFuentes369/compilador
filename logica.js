@@ -156,7 +156,10 @@ function traducirError(mensaje, error) {
         }                
         if ( mensaje.includes('Invalid rigth-hand side in assignment') ){
             return `Error de sintaxis: Lado derecho no válido en la tarea`;
-        }    
+        }                
+        if ( mensaje.includes('Invalid or unexpected token') ){
+            return `Error de sintaxis: Token no válido o inesperado`;
+        }   
         return `Error de sintaxis: ${mensaje}`;
     }
 
