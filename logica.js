@@ -24,7 +24,7 @@ function analyzeCode() {
         resultDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
 
     } catch (error) {
-        resultDiv.innerHTML += `<p class="error">Error en ${error.phase || 'análisis'}: Línea ${error.line || 'desconocida'}: ${traducirError(error.message, error)}</p>`;
+        resultDiv.innerHTML += `<p class="error">Error en ${error.phase || 'análisis'}: ${traducirError(error.message, error)}</p>`;
     }
 }
 
@@ -97,7 +97,7 @@ function syntacticAnalysis(tokens) {
         // Verificar balance
         if (parentheses < 0 || braces < 0 || brackets < 0) {
             throw { 
-                message: `Delimitador ${token.value} sin pareja`, 
+                message: `Delimitador ${token.value} sin apertura`, 
                 line: token.line,
                 phase: 'sintáctico'
             };
