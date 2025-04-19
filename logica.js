@@ -11,7 +11,7 @@ function analyzeCode() {
     try {
         // Fase 1: Análisis Léxico
         const tokens = lexicalAnalysis(code);
-        console.log(tokens)
+        console.log(tokens);
         displayTokens(tokens, resultDiv);
 
         // Fase 2: Análisis Sintáctico
@@ -32,7 +32,8 @@ function lexicalAnalysis(code) {
     const tokens = [];
     const lines = code.split('\n');
     const keywords = ['let', 'const', 'var', 'if', 'else', 'for', 'while', 'function', 'return'];
-    const tokenRegex = /\b(let|const|var|if|else|for|while|function|return)\b|[\w]+|[=+\-*/();{}[\],.<>!&|]|\s+/g;
+    // Modificamos la expresión regular para incluir cadenas entre comillas dobles
+    const tokenRegex = /\b(let|const|var|if|else|for|while|function|return)\b|"[^"]*"|[\w]+|[=+\-*/();{}[\],.<>!&|]|\s+/g;
 
     lines.forEach((line, index) => {
         let match;
@@ -40,12 +41,23 @@ function lexicalAnalysis(code) {
         while ((match = tokenRegex.exec(line)) !== null) {
             const token = match[0].trim();
             if (token) {
+                let type = 'identificador'; // Tipo por defecto
+
+                if (keywords.includes(token)) {
+                    type = 'palabra clave';
+                } else if (/[0-9]/.test(token)) {
+                    type = 'numero';
+                } else if (/[+\-*/=<>!&|]/.test(token)) {
+                    type = 'operador';
+                } else if (/[();{}[\],.]/.test(token)) {
+                    type = 'puntuacion';
+                } else if (token.startsWith('"') && token.endsWith('"')) {
+                    type = 'texto'; // Nuevo tipo para cadenas de texto
+                }
+
                 tokens.push({
                     value: token,
-                    type: keywords.includes(token) ? 'palabra clave' : 
-                          /[0-9]/.test(token) ? 'numero' : 
-                          /[+\-*/=<>!&|]/.test(token) ? 'operador' : 
-                          /[();{}[\],.]/.test(token) ? 'puntuacion' : 'identificador',
+                    type: type,
                     line: index + 1,
                     position: position
                 });
@@ -87,8 +99,8 @@ function syntacticAnalysis(tokens) {
         if (expectingSemicolon && token.value === ';') {
             expectingSemicolon = false;
         } else if (expectingSemicolon && i === tokens.length - 1) {
-            throw { 
-                message: 'Falta punto y coma después de declaración', 
+            throw {
+                message: 'Falta punto y coma después de declaración',
                 line: token.line,
                 phase: 'sintáctico'
             };
@@ -96,8 +108,8 @@ function syntacticAnalysis(tokens) {
 
         // Verificar balance
         if (parentheses < 0 || braces < 0 || brackets < 0) {
-            throw { 
-                message: `Delimitador ${token.value} sin apertura`, 
+            throw {
+                message: `Delimitador ${token.value} sin apertura`,
                 line: token.line,
                 phase: 'sintáctico'
             };
@@ -105,8 +117,8 @@ function syntacticAnalysis(tokens) {
     }
 
     if (parentheses !== 0 || braces !== 0 || brackets !== 0) {
-        throw { 
-            message: 'Delimitadores sin cerrar', 
+        throw {
+            message: 'Delimitadores sin cerrar',
             line: tokens[tokens.length - 1].line,
             phase: 'sintáctico'
         };
@@ -117,7 +129,7 @@ function syntacticAnalysis(tokens) {
 
 // Función auxiliar para traducir errores
 function traducirError(mensaje, error) {
-    console.log(error)
+    console.log(error);
     // Identificar el tipo de error y traducir mensajes comunes
     if (error instanceof ReferenceError) {
         if (mensaje.includes('is not defined')) {
@@ -142,24 +154,24 @@ function traducirError(mensaje, error) {
             return `No se puede leer la propiedad '${propiedad}' de ${tipo === 'undefined' ? 'undefined' : 'null'}`;
         }
     } else if (error instanceof SyntaxError) {
-        if ( mensaje.includes('Unexpected number') ){
+        if (mensaje.includes('Unexpected number')) {
             return `Error de sintaxis: Número inesperado`;
-        }                
-        if ( mensaje.includes('Unexpected identifier') ){
+        }
+        if (mensaje.includes('Unexpected identifier')) {
             return `Error de sintaxis: Identificador inesperado`;
-        }       
-        if ( mensaje.includes('Unexpected token') ){
+        }
+        if (mensaje.includes('Unexpected token')) {
             return `Error de sintaxis: Token inesperado`;
-        }                
-        if ( mensaje.includes('Invalid left-hand side in assignment') ){
+        }
+        if (mensaje.includes('Invalid left-hand side in assignment')) {
             return `Error de sintaxis: Lado izquierdo no válido en la tarea`;
-        }                
-        if ( mensaje.includes('Invalid rigth-hand side in assignment') ){
+        }
+        if (mensaje.includes('Invalid rigth-hand side in assignment')) {
             return `Error de sintaxis: Lado derecho no válido en la tarea`;
-        }                
-        if ( mensaje.includes('Invalid or unexpected token') ){
+        }
+        if (mensaje.includes('Invalid or unexpected token')) {
             return `Error de sintaxis: Token no válido o inesperado`;
-        }   
+        }
         return `Error de sintaxis: ${mensaje}`;
     }
 
@@ -188,8 +200,8 @@ function semanticAnalysis(code) {
         };
     } catch (error) {
         let mensajeEnEspañol = traducirError(error.message, error);
-        throw { 
-            message: mensajeEnEspañol, 
+        throw {
+            message: mensajeEnEspañol,
             line: getErrorLine(code, error),
             phase: 'semántico'
         };
@@ -204,21 +216,57 @@ function getErrorLine(code, error) {
 }
 
 function displayTokens(tokens, resultDiv) {
-    // let tokenHTML = '<div class="token-list"><h3>Tokens encontrados:</h3><ul>';
-    // tokens.forEach(token => {
-    //     tokenHTML += `<li>Línea ${token.line}: ${token.value} (${token.type})</li>`;
-    // });
-    // tokenHTML += '</ul></div>';
-    // resultDiv.innerHTML += tokenHTML;
-
-    // token sin repetir
     const valoresUnicos = new Set();
     let tokenHTML = '<div class="token-list"><h3>Tokens encontrados:</h3><ul>';
-        
+
+    const tipoTokenMap = {
+        'palabra clave': (value) => {
+            if (value === 'for') return 'reservado_for';
+            if (value === 'if') return 'reservado_if';
+            if (value === 'else') return 'reservado_else';
+            if (value === 'while') return 'reservado_while';
+            if (value === 'function') return 'reservado_function';
+            if (value === 'return') return 'reservado_return';
+            if (['let', 'const', 'var'].includes(value)) return 'declaracion_variable';
+            return `reservado_${value}`; // Para otras palabras clave
+        },
+        'numero': () => 'literal_numero',
+        'operador': (value) => {
+            if (value === '=') return 'operador_igual';
+            if (value === '<') return 'operador_menor_que';
+            if (value === '>') return 'operador_mayor_que';
+            if (value === '+') return 'operador_mas';
+            if (value === '-') return 'operador_menos';
+            if (value === '*') return 'operador_multiplicacion';
+            if (value === '/') return 'operador_division';
+            if (value === '<') return 'operador_menor_que';
+            if (value === '>') return 'operador_mayor_que';
+            if (value === '!') return 'operador_negacion';
+            if (value === '&') return 'operador_and_bitwise';
+            if (value === '|') return 'operador_or_bitwise';
+            return `operador_${value}`;
+        },
+        'puntuacion': (value) => {
+            if (value === '(') return 'parentesis_abre';
+            if (value === ')') return 'parentesis_cierra';
+            if (value === '{') return 'llave_abre';
+            if (value === '}') return 'llave_cierra';
+            if (value === '[') return 'corchete_abre';
+            if (value === ']') return 'corchete_cierra';
+            if (value === ';') return 'punto_coma';
+            if (value === ',') return 'coma';
+            if (value === '.') return 'punto';
+            return `puntuacion_${value}`;
+        },
+        'identificador': () => 'identificador',
+        'texto': () => 'literal_texto' // Asegúrate de haber añadido este tipo en lexicalAnalysis
+    };
+
     tokens.forEach(token => {
         if (!valoresUnicos.has(token.value)) {
             valoresUnicos.add(token.value);
-            tokenHTML += `<li>${token.value} (${token.type})</li>`;
+            const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
+            tokenHTML += `<li>${token.value} (${tipoEspecifico})</li>`;
         }
     });
 
