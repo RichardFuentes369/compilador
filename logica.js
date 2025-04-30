@@ -11,7 +11,6 @@ function analyzeCode() {
     try {
         // Fase 1: Análisis Léxico
         const tokens = lexicalAnalysis(code);
-        console.log(tokens);
         displayTokens(tokens, resultDiv);
 
         // Fase 2: Análisis Sintáctico
@@ -24,7 +23,9 @@ function analyzeCode() {
         resultDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
 
     } catch (error) {
-        resultDiv.innerHTML += `<p class="error">Error en ${error.phase || 'análisis'}: ${traducirError(error.message, error)}</p>`;
+        const lineNumber = getErrorLine(code, error) - 4;
+        let mensajeEnEspañol = traducirError(error.message, error, lineNumber);
+        resultDiv.innerHTML += `<p class="error">Error en ${error.phase || 'análisis'}: ${mensajeEnEspañol}</p>`;
     }
 }
 
@@ -73,22 +74,58 @@ function lexicalAnalysis(code) {
 }
 
 function syntacticAnalysis(tokens) {
-    let parentheses = 0;
-    let braces = 0;
-    let brackets = 0;
+    let parentheses = []; // Usaremos un array para almacenar las líneas de los '('
+    let braces = [];      // Usaremos un array para almacenar las líneas de los '{'
+    let brackets = [];    // Usaremos un array para almacenar las líneas de los '['
     let expectingSemicolon = false;
 
     for (let i = 0; i < tokens.length; i++) {
         const token = tokens[i];
         const nextToken = tokens[i + 1];
 
-        // Contar delimitadores
-        if (token.value === '(') parentheses++;
-        if (token.value === ')') parentheses--;
-        if (token.value === '{') braces++;
-        if (token.value === '}') braces--;
-        if (token.value === '[') brackets++;
-        if (token.value === ']') brackets--;
+        // Contar y almacenar líneas de delimitadores de apertura
+        if (token.value === '(') {
+            parentheses.push(token.line);
+        }
+        if (token.value === ')') {
+            if (parentheses.length > 0) {
+                parentheses.pop();
+            } else {
+                throw {
+                    message: `Paréntesis ')' sin apertura, linea ${token.line}`,
+                    line: token.line,
+                    phase: 'sintáctico'
+                };
+            }
+        }
+        if (token.value === '{') {
+            braces.push(token.line);
+        }
+        if (token.value === '}') {
+            if (braces.length > 0) {
+                braces.pop();
+            } else {
+                throw {
+                    message: `Llave '}' sin apertura, linea ${token.line}`,
+                    line: token.line,
+                    phase: 'sintáctico'
+                };
+            }
+        }
+        if (token.value === '[') {
+            brackets.push(token.line);
+        }
+        if (token.value === ']') {
+            if (brackets.length > 0) {
+                brackets.pop();
+            } else {
+                throw {
+                    message: `Corchete ']' sin apertura, linea ${token.line}`,
+                    line: token.line,
+                    phase: 'sintáctico'
+                };
+            }
+        }
 
         // Verificar declaraciones
         if (['let', 'const', 'var'].includes(token.value)) {
@@ -100,26 +137,33 @@ function syntacticAnalysis(tokens) {
             expectingSemicolon = false;
         } else if (expectingSemicolon && i === tokens.length - 1) {
             throw {
-                message: 'Falta punto y coma después de declaración',
-                line: token.line,
-                phase: 'sintáctico'
-            };
-        }
-
-        // Verificar balance
-        if (parentheses < 0 || braces < 0 || brackets < 0) {
-            throw {
-                message: `Delimitador ${token.value} sin apertura`,
+                message: `Falta punto y coma después de declaración, linea ${token.line}`,
                 line: token.line,
                 phase: 'sintáctico'
             };
         }
     }
 
-    if (parentheses !== 0 || braces !== 0 || brackets !== 0) {
+    if (parentheses.length > 0) {
         throw {
-            message: 'Delimitadores sin cerrar',
-            line: tokens[tokens.length - 1].line,
+            message: `Paréntesis '(' sin cerrar, linea ${parentheses[parentheses.length - 1]}`,
+            line: parentheses[parentheses.length - 1],
+            phase: 'sintáctico'
+        };
+    }
+
+    if (braces.length > 0) {
+        throw {
+            message: `Llave '{' sin cerrar, linea ${braces[braces.length - 1]}`,
+            line: braces[braces.length - 1],
+            phase: 'sintáctico'
+        };
+    }
+
+    if (brackets.length > 0) {
+        throw {
+            message: `Corchete '[' sin cerrar, linea ${brackets[brackets.length - 1]}`,
+            line: brackets[brackets.length - 1],
             phase: 'sintáctico'
         };
     }
@@ -128,55 +172,56 @@ function syntacticAnalysis(tokens) {
 }
 
 // Función auxiliar para traducir errores
-function traducirError(mensaje, error) {
-    console.log(error);
+function traducirError(mensaje, error, linea) {
+    let mensajeConLinea = `Línea ${linea}: `; // Prefijo para el mensaje con la línea
+
     // Identificar el tipo de error y traducir mensajes comunes
     if (error instanceof ReferenceError) {
         if (mensaje.includes('is not defined')) {
             const variable = mensaje.split(' ')[0];
-            return `${variable} no está definida`;
+            return `${mensajeConLinea}${variable} no está definida`;
         }
         if (mensaje.includes("Cannot access") && mensaje.includes("before initialization")) {
             const variable = mensaje.split("'")[1];
-            return `no se puede acceder a la variable ${variable} antes de la inicialización`;
+            return `${mensajeConLinea}no se puede acceder a la variable ${variable} antes de la inicialización`;
         }
     } else if (error instanceof TypeError) {
         if (mensaje.includes('is not a function')) {
             const elemento = mensaje.split(' ')[0];
-            return `${elemento} no es una función`;
+            return `${mensajeConLinea}${elemento} no es una función`;
         } else if (mensaje.includes('undefined is not an object')) {
-            return `No se puede acceder a una propiedad porque el objeto es undefined`;
+            return `${mensajeConLinea}No se puede acceder a una propiedad porque el objeto es undefined`;
         } else if (mensaje.includes('null is not an object')) {
-            return `No se puede acceder a una propiedad porque el objeto es null`;
+            return `${mensajeConLinea}No se puede acceder a una propiedad porque el objeto es null`;
         } else if (mensaje.includes('Cannot read properties of')) {
             const tipo = mensaje.includes('undefined') ? 'undefined' : 'null';
             const propiedad = mensaje.match(/'(.*?)'/)[1];
-            return `No se puede leer la propiedad '${propiedad}' de ${tipo === 'undefined' ? 'undefined' : 'null'}`;
+            return `${mensajeConLinea}No se puede leer la propiedad '${propiedad}' de ${tipo === 'undefined' ? 'undefined' : 'null'}`;
         }
     } else if (error instanceof SyntaxError) {
         if (mensaje.includes('Unexpected number')) {
-            return `Error de sintaxis: Número inesperado`;
+            return `${mensajeConLinea}Error de sintaxis: Número inesperado`;
         }
         if (mensaje.includes('Unexpected identifier')) {
-            return `Error de sintaxis: Identificador inesperado`;
+            return `${mensajeConLinea}Error de sintaxis: Identificador inesperado`;
         }
         if (mensaje.includes('Unexpected token')) {
-            return `Error de sintaxis: Token inesperado`;
+            return `${mensajeConLinea}Error de sintaxis: Token inesperado`;
         }
         if (mensaje.includes('Invalid left-hand side in assignment')) {
-            return `Error de sintaxis: Lado izquierdo no válido en la tarea`;
+            return `${mensajeConLinea}Error de sintaxis: Lado izquierdo no válido en la tarea`;
         }
         if (mensaje.includes('Invalid rigth-hand side in assignment')) {
-            return `Error de sintaxis: Lado derecho no válido en la tarea`;
+            return `${mensajeConLinea}Error de sintaxis: Lado derecho no válido en la tarea`;
         }
         if (mensaje.includes('Invalid or unexpected token')) {
-            return `Error de sintaxis: Token no válido o inesperado`;
+            return `${mensajeConLinea}Error de sintaxis: Token no válido o inesperado`;
         }
-        return `Error de sintaxis: ${mensaje}`;
+        return `${mensajeConLinea}Error de sintaxis: ${mensaje}`;
     }
 
-    // Si no se reconoce el error, devolver el mensaje original
-    return mensaje;
+    // Si no se reconoce el error, devolver el mensaje original con la línea
+    return `${mensajeConLinea}${mensaje}`;
 }
 
 function semanticAnalysis(code) {
@@ -199,20 +244,33 @@ function semanticAnalysis(code) {
             output: sandbox.output.trim() || 'Ejecutado correctamente'
         };
     } catch (error) {
-        let mensajeEnEspañol = traducirError(error.message, error);
+        const lineNumber = getErrorLine(code, error) - 4;
+        let mensajeEnEspañol = traducirError(error.message, error, lineNumber);
         throw {
             message: mensajeEnEspañol,
-            line: getErrorLine(code, error),
+            line: lineNumber,
             phase: 'semántico'
         };
     }
 }
 
 function getErrorLine(code, error) {
-    const lines = code.split('\n');
     const stack = error.stack || '';
-    const lineMatch = stack.match(/<anonymous>:(\d+)/);
-    return lineMatch ? parseInt(lineMatch[1]) : 'desconocida';
+    const lines = code.split('\n');
+    const anonymousRegex = /<anonymous>:(\d+):\d+/;
+
+    const match = stack.match(anonymousRegex);
+    if (match && match[1]) {
+        return parseInt(match[1], 10);
+    }
+
+    const generalRegex = /eval:(\d+):\d+/;
+    const generalMatch = stack.match(generalRegex);
+    if (generalMatch && generalMatch[1]) {
+        return parseInt(generalMatch[1], 10);
+    }
+
+    return 'desconocida';
 }
 
 function displayTokens(tokens, resultDiv) {
@@ -221,52 +279,55 @@ function displayTokens(tokens, resultDiv) {
 
     const tipoTokenMap = {
         'palabra clave': (value) => {
-            if (value === 'for') return 'reservado_for';
-            if (value === 'if') return 'reservado_if';
-            if (value === 'else') return 'reservado_else';
-            if (value === 'while') return 'reservado_while';
-            if (value === 'function') return 'reservado_function';
-            if (value === 'return') return 'reservado_return';
-            if (['let', 'const', 'var'].includes(value)) return 'declaracion_variable';
-            return `reservado_${value}`; // Para otras palabras clave
+            if (value === 'for') return 'key_reservada_for';
+            if (value === 'if') return 'key_reservada_if';
+            if (value === 'else') return 'key_reservada_else';
+            if (value === 'while') return 'key_reservada_while';
+            if (value === 'function') return 'key_reservada_function';
+            if (value === 'return') return 'key_reservada_return';
+            if (['let', 'const', 'var'].includes(value)) return `key_reservada_${value}`;
+            return `key_reservada_${value}`; // Para otras palabras clave
         },
-        'numero': () => 'literal_numero',
+        'numero': (value) => `numero_${value}`,
         'operador': (value) => {
-            if (value === '=') return 'operador_igual';
-            if (value === '<') return 'operador_menor_que';
-            if (value === '>') return 'operador_mayor_que';
-            if (value === '+') return 'operador_mas';
-            if (value === '-') return 'operador_menos';
-            if (value === '*') return 'operador_multiplicacion';
-            if (value === '/') return 'operador_division';
-            if (value === '<') return 'operador_menor_que';
-            if (value === '>') return 'operador_mayor_que';
-            if (value === '!') return 'operador_negacion';
-            if (value === '&') return 'operador_and_bitwise';
-            if (value === '|') return 'operador_or_bitwise';
+            if (value === '=') return 'key_operador_igual';
+            if (value === '<') return 'key_operador_menor_que';
+            if (value === '>') return 'key_operador_mayor_que';
+            if (value === '+') return 'key_operador_mas';
+            if (value === '-') return 'key_operador_menos';
+            if (value === '*') return 'key_operador_multiplicacion';
+            if (value === '/') return 'key_operador_division';
+            if (value === '<') return 'key_operador_menor_que';
+            if (value === '>') return 'key_operador_mayor_que';
+            if (value === '!') return 'key_operador_negacion';
+            if (value === '&') return 'key_operador_and_bitwise';
+            if (value === '|') return 'key_operador_or_bitwise';
             return `operador_${value}`;
         },
         'puntuacion': (value) => {
-            if (value === '(') return 'parentesis_abre';
-            if (value === ')') return 'parentesis_cierra';
-            if (value === '{') return 'llave_abre';
-            if (value === '}') return 'llave_cierra';
-            if (value === '[') return 'corchete_abre';
-            if (value === ']') return 'corchete_cierra';
-            if (value === ';') return 'punto_coma';
-            if (value === ',') return 'coma';
-            if (value === '.') return 'punto';
-            return `puntuacion_${value}`;
+            if (value === '(') return 'key_parentesis_abre';
+            if (value === ')') return 'key_parentesis_cierra';
+            if (value === '{') return 'key_llave_abre';
+            if (value === '}') return 'key_llave_cierra';
+            if (value === '[') return 'key_corchete_abre';
+            if (value === ']') return 'key_corchete_cierra';
+            if (value === ';') return 'key_punto_coma';
+            if (value === ',') return 'key_coma';
+            if (value === '.') return 'key_punto';
+            return `key_puntuacion_${value}`;
         },
-        'identificador': () => 'identificador',
-        'texto': () => 'literal_texto' // Asegúrate de haber añadido este tipo en lexicalAnalysis
+        'identificador': (value) => `key_identificador_${value}`,
+        'texto': () => 'key_literal_texto' // Asegúrate de haber añadido este tipo en lexicalAnalysis
     };
 
     tokens.forEach(token => {
         if (!valoresUnicos.has(token.value)) {
             valoresUnicos.add(token.value);
             const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
-            tokenHTML += `<li>${token.value} (${tipoEspecifico})</li>`;
+            tokenHTML += `<li> 
+                <b>Valor:</b> ${token.value} <br> 
+                <b>Token:</b> ${tipoEspecifico} 
+            </li><br>`;
         }
     });
 
