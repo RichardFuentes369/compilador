@@ -1,9 +1,12 @@
 function analyzeCode() {
     const code = document.getElementById('codeInput').value.trim();
     const resultDiv = document.getElementById('result');
+    const detailDiv = document.getElementById('detail');
     resultDiv.innerHTML = '';
+    detailDiv.innerHTML = '';
 
     if (!code) {
+        detailDiv.innerHTML = '<p class="error">Error: No se ingresó ningún código</p>';
         resultDiv.innerHTML = '<p class="error">Error: No se ingresó ningún código</p>';
         return;
     }
@@ -15,17 +18,17 @@ function analyzeCode() {
 
         // Fase 2: Análisis Sintáctico
         const syntaxResult = syntacticAnalysis(tokens);
-        resultDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
+        detailDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
 
         // Fase 3: Análisis Semántico y Ejecución
         const semanticResult = semanticAnalysis(code);
-        resultDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
-        resultDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
+        detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
+        detailDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
 
     } catch (error) {
         const lineNumber = getErrorLine(code, error) - 4;
         let mensajeEnEspañol = traducirError(error.message, error, lineNumber);
-        resultDiv.innerHTML += `<p class="error">Error en ${error.phase || 'análisis'}: ${mensajeEnEspañol}</p>`;
+        detailDiv.innerHTML += `<p class="error">Error en ${error.phase || 'análisis'}: ${mensajeEnEspañol}</p>`;
     }
 }
 
@@ -202,7 +205,7 @@ function traducirError(mensaje, error, linea) {
     } else if (error instanceof SyntaxError) {
         if (mensaje.includes('Unexpected number')) {
             return `Error de sintaxis: Número inesperado`;
-        }
+        }    
         if (mensaje.includes('Unexpected identifier')) {
             return `Error de sintaxis: Identificador inesperado`;
         }
@@ -226,6 +229,16 @@ function traducirError(mensaje, error, linea) {
         }        
         if (mensaje.includes('Missing initializer in const declaration')) {
             return `Falta el inicializador en la declaración constante`;
+        }
+        if (mensaje.includes('has already been declared')) {
+            let inicio = mensaje.indexOf("'"); // Encuentra la posición de la primera comilla simple
+            let fin = mensaje.lastIndexOf("'");   // Encuentra la posición de la última comilla simple
+            let variable = ''
+            if (inicio !== -1 && fin !== -1 && inicio < fin) {
+                let contenido = mensaje.substring(inicio + 1, fin);
+                variable = contenido
+            }
+            return `Error de sintaxis: El identificador ${variable}  ya ha sido declarado`;
         }
         return `Error de sintaxis: ${mensaje}`;
     }
@@ -389,6 +402,7 @@ function displayTokens(tokens, resultDiv) {
         if (!valoresUnicos.has(token.value)) {
             valoresUnicos.add(token.value);
             const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
+            
             tokenHTML += `<li> 
                 <b>Valor:</b> ${token.value} <br> 
                 <b>Token:</b> ${tipoEspecifico} 
