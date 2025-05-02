@@ -1,15 +1,9 @@
-let productos = [
-  { nombre: "Camiseta", precio: 25 },
-  { nombre: "Pantalón", precio: 50 },
-  { nombre: "Zapatos", precio: 80 },
-  { nombre: "Gorra", precio: 15 }
-];
+let a = 10;
+let b = 5;
+let resultado; 
 
-if (productos.length > 3) {
-  productos.Push({ nombre: "Bufanda", precio: 20 });
-  console.log("Lista actualizada");
+if (a > b) {
+  resultado = a + b;
 } else {
-  console.log("La lista de productos no es mayor a tres");
+  resultado = a * b;
 }
-
-console.log(productos);

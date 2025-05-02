@@ -47,18 +47,30 @@
     </style>
 </head>
 <body>
-    <h1>Analizador de Código JavaScript</h1>
+    
+    <div class="bg-success text-light text-center">
+        <h1>Analizador de Código JavaScript</h1>
+    </div>
+
     <div class="col-sm-12 row">
         <div class="col-sm-6">
             <textarea id="codeInput" style="resize: none;">
             </textarea>
-            <button class="btn btn-sm btn-primary" onclick="analyzeCode()">Analizar Código</button>
+            <center>
+                <button class="btn btn-sm btn-primary" onclick="analyzeCode()">Analizar Código</button>
+                <button class="btn btn-sm btn-secondary" onclick="limpiar()">Limpiar</button>
+            </center>
             <br><br>
             <div id="detail"></div>
         </div>
         <div class="col-sm-6">
             <div id="result"></div>
         </div>
+    </div>
+
+    <div class="fixed-bottom bg-primary text-light text-center">
+        Javier Ricardo Baron Fuentes <br>
+        Brayan Yesid Lozada Orozco
     </div>
 
     <script src="./logica.js"></script>

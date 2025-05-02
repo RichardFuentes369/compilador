@@ -413,3 +413,11 @@ function displayTokens(tokens, resultDiv) {
     tokenHTML += '</ul></div>';
     resultDiv.innerHTML += tokenHTML;
 }
+
+function limpiar(){
+    const code = document.getElementById('codeInput').value = "";
+    const resultDiv = document.getElementById('result');
+    const detailDiv = document.getElementById('detail');
+    resultDiv.textContent = '';
+    detailDiv.textContent = '';
+}
