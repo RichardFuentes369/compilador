@@ -135,13 +135,14 @@ function syntacticAnalysis(tokens) {
         // Verificar punto y coma
         if (expectingSemicolon && token.value === ';') {
             expectingSemicolon = false;
-        } else if (expectingSemicolon && i === tokens.length - 1) {
-            throw {
-                message: `Falta punto y coma después de declaración, linea ${token.line}`,
-                line: token.line,
-                phase: 'sintáctico'
-            };
-        }
+        } 
+        // else if (expectingSemicolon && i === tokens.length - 1) {
+        //     throw {
+        //         message: `Falta punto y coma después de declaración, linea ${token.line}`,
+        //         line: token.line,
+        //         phase: 'sintáctico'
+        //     };
+        // }
     }
 
     if (parentheses.length > 0) {
@@ -179,52 +180,106 @@ function traducirError(mensaje, error, linea) {
     if (error instanceof ReferenceError) {
         if (mensaje.includes('is not defined')) {
             const variable = mensaje.split(' ')[0];
-            return `${mensajeConLinea}${variable} no está definida`;
+            return `${variable} no está definida, ${mensajeConLinea}`;
         }
         if (mensaje.includes("Cannot access") && mensaje.includes("before initialization")) {
             const variable = mensaje.split("'")[1];
-            return `${mensajeConLinea}no se puede acceder a la variable ${variable} antes de la inicialización`;
+            return `no se puede acceder a la variable ${variable} antes de la inicialización`;
         }
     } else if (error instanceof TypeError) {
         if (mensaje.includes('is not a function')) {
             const elemento = mensaje.split(' ')[0];
-            return `${mensajeConLinea}${elemento} no es una función`;
+            return `${elemento} no es una función`;
         } else if (mensaje.includes('undefined is not an object')) {
-            return `${mensajeConLinea}No se puede acceder a una propiedad porque el objeto es undefined`;
+            return `No se puede acceder a una propiedad porque el objeto es undefined`;
         } else if (mensaje.includes('null is not an object')) {
-            return `${mensajeConLinea}No se puede acceder a una propiedad porque el objeto es null`;
+            return `No se puede acceder a una propiedad porque el objeto es null`;
         } else if (mensaje.includes('Cannot read properties of')) {
             const tipo = mensaje.includes('undefined') ? 'undefined' : 'null';
             const propiedad = mensaje.match(/'(.*?)'/)[1];
-            return `${mensajeConLinea}No se puede leer la propiedad '${propiedad}' de ${tipo === 'undefined' ? 'undefined' : 'null'}`;
+            return `No se puede leer la propiedad '${propiedad}' de ${tipo === 'undefined' ? 'undefined' : 'null'}`;
         }
     } else if (error instanceof SyntaxError) {
         if (mensaje.includes('Unexpected number')) {
-            return `${mensajeConLinea}Error de sintaxis: Número inesperado`;
+            return `Error de sintaxis: Número inesperado`;
         }
         if (mensaje.includes('Unexpected identifier')) {
-            return `${mensajeConLinea}Error de sintaxis: Identificador inesperado`;
+            return `Error de sintaxis: Identificador inesperado`;
         }
         if (mensaje.includes('Unexpected token')) {
-            return `${mensajeConLinea}Error de sintaxis: Token inesperado`;
+            return `Error de sintaxis: Token inesperado`;
+        }        
+        if (mensaje.includes('Unexpected strict mode reserved word')) {
+            return `Palabra reservada de modo estricto inesperada`;
         }
         if (mensaje.includes('Invalid left-hand side in assignment')) {
-            return `${mensajeConLinea}Error de sintaxis: Lado izquierdo no válido en la tarea`;
+            return `Error de sintaxis: Lado izquierdo no válido en la tarea`;
         }
         if (mensaje.includes('Invalid rigth-hand side in assignment')) {
-            return `${mensajeConLinea}Error de sintaxis: Lado derecho no válido en la tarea`;
+            return `Error de sintaxis: Lado derecho no válido en la tarea`;
         }
         if (mensaje.includes('Invalid or unexpected token')) {
-            return `${mensajeConLinea}Error de sintaxis: Token no válido o inesperado`;
+            return `Error de sintaxis: Token no válido o inesperado`;
+        }        
+        if (mensaje.includes('Numeric separators are not allowed at the end of numeric literals')) {
+            return `No se permiten separadores numéricos al final de literales numéricos`;
+        }        
+        if (mensaje.includes('Missing initializer in const declaration')) {
+            return `Falta el inicializador en la declaración constante`;
         }
-        return `${mensajeConLinea}Error de sintaxis: ${mensaje}`;
+        return `Error de sintaxis: ${mensaje}`;
     }
 
     // Si no se reconoce el error, devolver el mensaje original con la línea
-    return `${mensajeConLinea}${mensaje}`;
+    return `${mensaje}`;
 }
 
 function semanticAnalysis(code) {
+    const variablesDeclaradas = new Set();
+    const erroresSemanticos = [];
+    const lines = code.split('\n');
+
+    // Expresión regular para identificar declaraciones (simplificada)
+    const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
+    // Expresión regular para identificar usos de variables (simplificada)
+    const usageRegex = /[a-zA-Z_][a-zA-Z0-9_]*/g;
+    // Expresión regular para identificar strings (para ignorar su contenido)
+    const stringRegex = /(['"])(.*?)\1/g;
+
+    // Primera pasada: Registrar declaraciones
+    lines.forEach((line, lineNumber) => {
+        const match = line.match(declarationRegex);
+        if (match) {
+            const variableName = match[2];
+            variablesDeclaradas.add(variableName);
+        }
+    });
+
+    // Segunda pasada: Verificar usos (ignorando contenido de strings)
+    lines.forEach((line, lineNumber) => {
+        // Eliminar el contenido de las cadenas para no analizarlas como variables
+        const codeWithoutStrings = line.replace(stringRegex, '');
+        let match;
+        while ((match = usageRegex.exec(codeWithoutStrings)) !== null) {
+            const variableName = match[0];
+            // Ignorar palabras clave
+            if (!['const', 'let', 'var', 'if', 'else', 'for', 'while', 'function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity'].includes(variableName)) {
+                if (!variablesDeclaradas.has(variableName)) {
+                    erroresSemanticos.push({
+                        message: `Error semántico: La variable '${variableName}' no ha sido declarada, linea ${lineNumber+1}`,
+                        line: lineNumber + 1
+                    });
+                }
+            }
+        }
+        // Resetear el índice para la próxima línea
+        usageRegex.lastIndex = 0;
+    });
+
+    if (erroresSemanticos.length > 0) {
+        throw erroresSemanticos[0]; // Lanza el primer error encontrado
+    }
+
     try {
         const sandbox = {
             output: '',
@@ -288,7 +343,17 @@ function displayTokens(tokens, resultDiv) {
             if (['let', 'const', 'var'].includes(value)) return `key_reservada_${value}`;
             return `key_reservada_${value}`; // Para otras palabras clave
         },
-        'numero': (value) => `numero_${value}`,
+        'numero': (value) => {
+            const tieneNumero = /\d/.test(value);
+            const tieneLetra = /[a-zA-Z]/.test(value);
+            if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                return "key_cadena";
+            }else if(tieneNumero && tieneLetra){
+                return `key_identificador_${value}`;
+            }else{
+                return `numero_${value}`
+            }
+        },
         'operador': (value) => {
             if (value === '=') return 'key_operador_igual';
             if (value === '<') return 'key_operador_menor_que';
