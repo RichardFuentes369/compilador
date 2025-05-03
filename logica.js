@@ -139,13 +139,6 @@ function syntacticAnalysis(tokens) {
         if (expectingSemicolon && token.value === ';') {
             expectingSemicolon = false;
         } 
-        // else if (expectingSemicolon && i === tokens.length - 1) {
-        //     throw {
-        //         message: `Falta punto y coma después de declaración, linea ${token.line}`,
-        //         line: token.line,
-        //         phase: 'sintáctico'
-        //     };
-        // }
     }
 
     if (parentheses.length > 0) {
@@ -277,9 +270,37 @@ function semanticAnalysis(code) {
             const variableName = match[0];
             // Ignorar palabras clave
             if (!['const', 'let', 'var', 'if', 'else', 'for', 'while', 'function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity'].includes(variableName)) {
-                if (!variablesDeclaradas.has(variableName)) {
+                
+                const propiasLenguaje = ['const', 'let', 'var', 'if', 'else', 'for', 'while', 'function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity'];
+                
+                const variables = [];
+
+                if (!propiasLenguaje.includes(variableName)) {
+                    variables.push(variableName);
+                } 
+
+                for (let i = 0; i < variables.length; i++) {
+                    let encontrada = false;
+                    const variableActual = variables[i];
+                
+                    for (const palabraReservada of propiasLenguaje) {
+                        if (variableActual.startsWith(palabraReservada)) {
+                            encontrada = true;
+                            break;
+                        }
+                    }
+                
+                    if (encontrada) {
+                        erroresSemanticos.push({
+                            message: `Error semántico: La variable '${variableName}' no existe en el lenguaje js, linea ${lineNumber+1}`,
+                            line: lineNumber + 1
+                        });
+                    } 
+                }
+                
+                if (!variablesDeclaradas.has(variableName) && !propiasLenguaje.includes(variableName)) {
                     erroresSemanticos.push({
-                        message: `Error semántico: La variable '${variableName}' no ha sido declarada, linea ${lineNumber+1}`,
+                        message: `Error sintáctico: La variable '${variableName}' no ha sido declarada, linea ${lineNumber+1}`,
                         line: lineNumber + 1
                     });
                 }
