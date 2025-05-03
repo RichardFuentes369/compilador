@@ -292,7 +292,7 @@ function semanticAnalysis(code) {
                 
                     if (encontrada) {
                         erroresSemanticos.push({
-                            message: `Error semántico: La variable '${variableName}' no existe en el lenguaje js, linea ${lineNumber+1}`,
+                            message: `Error sintáctico: La variable '${variableName}' no ha sido declarada, linea ${lineNumber+1}`,
                             line: lineNumber + 1
                         });
                     } 
@@ -300,7 +300,7 @@ function semanticAnalysis(code) {
                 
                 if (!variablesDeclaradas.has(variableName) && !propiasLenguaje.includes(variableName)) {
                     erroresSemanticos.push({
-                        message: `Error sintáctico: La variable '${variableName}' no ha sido declarada, linea ${lineNumber+1}`,
+                        message: `Error semántico: La variable '${variableName}' no existe en el lenguaje js, linea ${lineNumber+1}`,
                         line: lineNumber + 1
                     });
                 }
