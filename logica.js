@@ -139,6 +139,13 @@ function syntacticAnalysis(tokens) {
         if (expectingSemicolon && token.value === ';') {
             expectingSemicolon = false;
         } 
+        // else if (expectingSemicolon && i === tokens.length - 1) {
+        //     throw {
+        //         message: `Falta punto y coma después de declaración, linea ${token.line}`,
+        //         line: token.line,
+        //         phase: 'sintáctico'
+        //     };
+        // }
     }
 
     if (parentheses.length > 0) {
@@ -261,50 +268,56 @@ function semanticAnalysis(code) {
         }
     });
 
+
+    const verificarPalabra = (palabra) => {
+        const wordDeclared = ['const', 'let', 'var', 'function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity', 'if', 'else', 'for', 'while'];
+      
+        for (const declaredWord of wordDeclared) {
+          if (palabra.includes(declaredWord)) {
+            return false;
+          }
+        }
+        return true;
+      }
+
     // Segunda pasada: Verificar usos (ignorando contenido de strings)
     lines.forEach((line, lineNumber) => {
-        // Eliminar el contenido de las cadenas para no analizarlas como variables
         const codeWithoutStrings = line.replace(stringRegex, '');
+        const wordDeclared = ['const', 'let', 'var', 'function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity', 'if', 'else', 'for', 'while']
+        const wordFunction = ['if', 'else', 'for', 'while']
         let match;
         while ((match = usageRegex.exec(codeWithoutStrings)) !== null) {
             const variableName = match[0];
-            // Ignorar palabras clave
-            if (!['const', 'let', 'var', 'if', 'else', 'for', 'while', 'function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity'].includes(variableName)) {
-                
-                const propiasLenguaje = ['const', 'let', 'var', 'if', 'else', 'for', 'while', 'function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity'];
-                
-                const variables = [];
 
-                if (!propiasLenguaje.includes(variableName)) {
-                    variables.push(variableName);
-                } 
+            // wordDeclared todo lo que son variables
+            // variablesDeclaradas las variables que realmente existen
 
-                for (let i = 0; i < variables.length; i++) {
-                    let encontrada = false;
-                    const variableActual = variables[i];
-                
-                    for (const palabraReservada of propiasLenguaje) {
-                        if (variableActual.startsWith(palabraReservada)) {
-                            encontrada = true;
-                            break;
-                        }
-                    }
-                
-                    if (encontrada) {
-                        erroresSemanticos.push({
-                            message: `Error sintáctico: La variable '${variableName}' no ha sido declarada, linea ${lineNumber+1}`,
-                            line: lineNumber + 1
-                        });
-                    } 
-                }
-                
-                if (!variablesDeclaradas.has(variableName) && !propiasLenguaje.includes(variableName)) {
+            // wordDeclared.includes(variableName)
+            // variablesDeclaradas.has(variableName)
+            if(!wordDeclared.includes(variableName) && !variablesDeclaradas.has(variableName)){
+
+                if(!wordFunction.includes(variableName) && verificarPalabra(variableName)){
                     erroresSemanticos.push({
-                        message: `Error semántico: La variable '${variableName}' no existe en el lenguaje js, linea ${lineNumber+1}`,
+                        message: `Error léxico: La variable '${variableName}' no existe en el lenguaje js, linea ${lineNumber+1}`,
                         line: lineNumber + 1
                     });
                 }
-            }
+                if(
+                    !wordFunction.includes(variableName) 
+                    && 
+                    !variablesDeclaradas.has(variableName)
+                    &&
+                    !verificarPalabra(variableName)
+                ){
+                    erroresSemanticos.push({
+                        message: `
+                            Error léxico y sintáctico: La variable '${variableName}' esta mal escrita, linea ${lineNumber+1}
+                            `,
+                        line: lineNumber + 1
+                    });
+                }
+                
+            }                    
         }
         // Resetear el índice para la próxima línea
         usageRegex.lastIndex = 0;
