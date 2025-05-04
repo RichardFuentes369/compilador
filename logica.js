@@ -1,3 +1,4 @@
+let tokens = [];
 function analyzeCode() {
     const code = document.getElementById('codeInput').value.trim();
     const resultDiv = document.getElementById('result');
@@ -11,21 +12,24 @@ function analyzeCode() {
     }
 
     // Fase 1: Análisis Léxico
+    tokens = []
     const lexicoResult = lexicalAnalysis(code);
     
     if(lexicoResult.message != undefined){
         detailDiv.innerHTML += '<p class="error">✗ Análisis lexico error</p>';
-        detailDiv.innerHTML += '<p>Salida:' + (lexicoResult.message || 'Sin salida') +'</p>';
+        detailDiv.innerHTML += '<p><b>Salida:</b>' + (lexicoResult.message || 'Sin salida') +'</p>';
         displayTokens([], resultDiv);
+        tokens = []
+        return;
     }else{
         detailDiv.innerHTML += '<p class="success">✓ Análisis lexico completado</p>';
-        detailDiv.innerHTML += '<p>Salida: ' + (lexicoResult.output || 'Sin salida') + '</p>';
+        detailDiv.innerHTML += '<p><b>Salida:</b> ' + (lexicoResult.output || 'Sin salida') + '</p>';
         displayTokens(lexicoResult, resultDiv);
     }
 
-    // // Fase 2: Análisis Sintáctico
-    // const syntaxResult = syntacticAnalysis(tokens);
-    // detailDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
+    // Fase 2: Análisis Sintáctico
+    const syntaxResult = syntacticAnalysis(code);
+    detailDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
     // detailDiv.innerHTML += '<p>Salida: ' + (syntaxResult.output || 'Sin salida') + '</p>';
 
     // // Fase 3: Análisis Semántico y Ejecución
@@ -36,7 +40,6 @@ function analyzeCode() {
 
 function lexicalAnalysis(code) {
     const erroresLexicos = [];
-    const tokens = [];
     const lines = code.split('\n');
     const keyWordDeclaration = ['let', 'const', 'var'];
     const keyWordMethod = ['if', 'else', 'for', 'while'];
@@ -114,12 +117,11 @@ function lexicalAnalysis(code) {
             if (declarationRegex.exec(line) === null) {
                 erroresLexicos.push({
                     message: `
-                    <br>
-                        Error sintactico o lexico <br>
-                        Numero de linea : ${numeroLinea} <br>
-                        Mensaje: Se presenta un error de tipo sintactico o lexico, la estructura no cumple<br>
-                        Linea con error ${line} <br>`,
-                    line: numeroLinea
+                        Error lexico o sintactico <br>
+                        <b>Numero de linea:</b> ${numeroLinea} <br>
+                        <b>Mensaje:</b> Se presenta un error de tipo lexico o sintactico, la estructura no cumple<br>
+                        <b>Sugerencia:</b> Las variables deben estar declaradas, paralabras validas <i><strong>${keyWordDeclaration}</strong></i><br>
+                        <b>Linea con error:</b> ${line} <br>`
                 });
             }
 
@@ -164,13 +166,25 @@ function lexicalAnalysis(code) {
     return tokens;
 }
 
-function syntacticAnalysis(tokens) {
-    erroresSemanticos.push({
-        message: `
-        Error sintactico: No existe la palabra reservada '${variableName}' 
-        como declaracion de variable en js, linea ${lineNumber+1}`,
-        line: lineNumber + 1
-    });
+function syntacticAnalysis(code) {
+    const erroresSemanticos = [];
+    const lines = code.split('\n');
+    const keyWordDeclaration = ['let', 'const', 'var'];
+    const keyWordMethod = ['if', 'else', 'for', 'while'];
+    const keywords = ['let', 'const', 'var', 'if', 'else', 'for', 'while', 'function', 'return'];
+    const tokenRegex = /\b(let|const|var|if|else|for|while|function|return)\b|"[^"]*"|[\w]+|[=+\-*/();{}[\],.<>!&|]|\s+/g;
+    const declarationRegex = /^(let|var|const)\s+[a-zA-Z_]\w*\s*=\s*\d+$/;
+    const regexLexicoSintactico = /^\w+\s*=\s*\w+$/;
+    let tokenAnteriro = '';
+    let linea = 1;
+    console.log(code)
+    console.log(tokens)
+    // erroresSemanticos.push({
+    //     message: `
+    //     Error sintactico: No existe la palabra reservada '${variableName}' 
+    //     como declaracion de variable en js, linea ${lineNumber+1}`,
+    //     line: lineNumber + 1
+    // });
 }
 
 function semanticAnalysis(code) {
