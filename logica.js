@@ -10,31 +10,28 @@ function analyzeCode() {
         return;
     }
 
-    try {
-        // Fase 1: Análisis Léxico
-        const lexicoResult = lexicalAnalysis(code);
+    // Fase 1: Análisis Léxico
+    const lexicoResult = lexicalAnalysis(code);
+    
+    if(lexicoResult.message != undefined){
+        detailDiv.innerHTML += '<p class="error">✗ Análisis lexico error</p>';
+        detailDiv.innerHTML += '<p>Salida:' + (lexicoResult.message || 'Sin salida') +'</p>';
+        displayTokens([], resultDiv);
+    }else{
         detailDiv.innerHTML += '<p class="success">✓ Análisis lexico completado</p>';
         detailDiv.innerHTML += '<p>Salida: ' + (lexicoResult.output || 'Sin salida') + '</p>';
-      
-        console.log('aqui estoy')
-        displayTokens(tokens, resultDiv);
-
-        // // Fase 2: Análisis Sintáctico
-        // const syntaxResult = syntacticAnalysis(tokens);
-        // detailDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
-        // detailDiv.innerHTML += '<p>Salida: ' + (syntaxResult.output || 'Sin salida') + '</p>';
-
-        // // Fase 3: Análisis Semántico y Ejecución
-        // const semanticResult = semanticAnalysis(code);
-        // detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
-        // detailDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
-
-    } catch (error) {
-        const lineNumber = getErrorLine(code, error) - 4;
-        let mensajeEnEspañol = traducirError(error.message, error, lineNumber);
-        document.getElementById('result').innerHTML = '';
-        detailDiv.innerHTML += `<p class="error">Error en ${error.phase || 'análisis'}: ${mensajeEnEspañol}</p>`;
+        displayTokens(lexicoResult, resultDiv);
     }
+
+    // // Fase 2: Análisis Sintáctico
+    // const syntaxResult = syntacticAnalysis(tokens);
+    // detailDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
+    // detailDiv.innerHTML += '<p>Salida: ' + (syntaxResult.output || 'Sin salida') + '</p>';
+
+    // // Fase 3: Análisis Semántico y Ejecución
+    // const semanticResult = semanticAnalysis(code);
+    // detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
+    // detailDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
 }
 
 function lexicalAnalysis(code) {
@@ -57,6 +54,8 @@ function lexicalAnalysis(code) {
         let lineaActual = 1;
         tokenRegex.lastIndex = 0; // Importante: Resetear el índice para cada línea
 
+        let position = 0;
+           
         while ((match = tokenRegex.exec(line)) !== null) {
             const token = match[0].trim();
 
@@ -124,15 +123,37 @@ function lexicalAnalysis(code) {
                 });
             }
 
+            if (token) {
+                let type = 'identificador'; // Tipo por defecto
+
+                if (keywords.includes(token)) {
+                    type = 'palabra clave';
+                } else if (/[0-9]/.test(token)) {
+                    type = 'numero';
+                } else if (/[+\-*/=<>!&|]/.test(token)) {
+                    type = 'operador';
+                } else if (/[();{}[\],.]/.test(token)) {
+                    type = 'puntuacion';
+                } else if (token.startsWith('"') && token.endsWith('"')) {
+                    type = 'texto'; // Nuevo tipo para cadenas de texto
+                }
+
+                tokens.push({
+                    value: token,
+                    type: type,
+                    line: index + 1,
+                    position: position
+                });
+                position += match.index + token.length;
+            }
+
             if (token !== '') {
                 tokenAnteriro = token;
             }
-            
-
         }
 
         if (erroresLexicos.length > 0) {
-            throw erroresLexicos[0]; // Lanza el primer error encontrado en la línea
+            return erroresLexicos[0]
         }
     }
 
@@ -140,7 +161,6 @@ function lexicalAnalysis(code) {
         return tokens;
     }
 
-    console.log('aqui toy')
     return tokens;
 }
 

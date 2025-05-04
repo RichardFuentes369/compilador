@@ -1,9 +1,9 @@
-let a = 10;
-let b = 5;
-let resultado; 
+let a = 10
+let b = 5
+let r = 0
 
 if (a > b) {
-  resultado = a + b;
+  r = a + b;
 } else {
-  resultado = a * b;
+  r = a * b;
 }
