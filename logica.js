@@ -39,6 +39,8 @@ function analyzeCode() {
 }
 
 function declaracionVariables(code) {
+    const variablesDeclaradas = new Set();
+    const variablesDeclaradasSinSet = []
     const erroresLexicos = [];
     const lines = code.split('\n');
     const keyWordDeclaration = ['let', 'const', 'var'];
@@ -49,6 +51,28 @@ function declaracionVariables(code) {
     const regexLexicoSintactico = /^\w+\s*=\s*\w+$/;
     let tokenAnteriro = '';
     let linea = 1;
+
+    lines.forEach((line, lineNumber) => {
+        const match = line.match(declarationRegex);
+        if (match) {
+            const variableName = match[2];
+            const variableReal = match[0].split(" ")[1]
+            if(variablesDeclaradasSinSet.find(obj => obj == variableReal)){
+                erroresLexicos.push({
+                    message: `
+                    <br>
+                    Error semantico <br>
+                    Mensaje: La variable ${variableReal} ya fue declarada<br>
+                    Linea con error ${lineNumber + 1} <br>
+                    Error exacto: ${line} <br>
+                    `
+                });
+            }
+            variablesDeclaradasSinSet.push(variableReal)
+            variablesDeclaradas.add(variableName);
+            console.log(variablesDeclaradasSinSet)
+        }
+    });
 
     for (let index = 0; index < lines.length; index++) { // Usamos un bucle for para un control más claro
         const line = lines[index];
@@ -168,8 +192,13 @@ function declaracionVariables(code) {
 
 function estructuraAlgoritmo(code) {
     const variablesDeclaradas = new Set();
-    const lines = code.split('\n');
     const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
+    const lines = code.split('\n');
+    const ifRegex = /^\s*if\b/;
+    const elseRegex = /^\s*else\b/;
+    const forRegex = /^\s*for\b/;
+    const whileRegex = /^\s*while\b/;
+
     lines.forEach((line, lineNumber) => {
         const match = line.match(declarationRegex);
         if (match) {
@@ -177,8 +206,20 @@ function estructuraAlgoritmo(code) {
             variablesDeclaradas.add(variableName);
         }
     });
+
+    lines.forEach(linea => {
+        if (ifRegex.test(linea)) {
+          console.log(`Se encontró un 'if' al inicio de: "${linea.trim()}"`);
+        } else if (elseRegex.test(linea)) {
+          console.log(`Se encontró un 'else' al inicio de: "${linea.trim()}"`);
+        } else if (forRegex.test(linea)) {
+          console.log(`Se encontró un 'for' al inicio de: "${linea.trim()}"`);
+        } else if (whileRegex.test(linea)) {
+          console.log(`Se encontró un 'while' al inicio de: "${linea.trim()}"`);
+        }
+    });    
     // console.log(code)
-    // console.log(tokens) 
+    console.log(tokens) 
     console.log(variablesDeclaradas)
 }
 
