@@ -70,7 +70,6 @@ function declaracionVariables(code) {
             }
             variablesDeclaradasSinSet.push(variableReal)
             variablesDeclaradas.add(variableName);
-            console.log(variablesDeclaradasSinSet)
         }
     });
 
