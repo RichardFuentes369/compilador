@@ -13,7 +13,7 @@ function analyzeCode() {
 
     // Fase 1: Análisis Léxico
     tokens = []
-    const lexicoResult = lexicalAnalysis(code);
+    const lexicoResult = declaracionVariables(code);
     
     if(lexicoResult.message != undefined){
         detailDiv.innerHTML += '<p class="error">✗ Análisis lexico error</p>';
@@ -28,7 +28,7 @@ function analyzeCode() {
     }
 
     // Fase 2: Análisis Sintáctico
-    const syntaxResult = syntacticAnalysis(code);
+    const syntaxResult = estructuraAlgoritmo(code);
     detailDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
     // detailDiv.innerHTML += '<p>Salida: ' + (syntaxResult.output || 'Sin salida') + '</p>';
 
@@ -38,7 +38,7 @@ function analyzeCode() {
     // detailDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
 }
 
-function lexicalAnalysis(code) {
+function declaracionVariables(code) {
     const erroresLexicos = [];
     const lines = code.split('\n');
     const keyWordDeclaration = ['let', 'const', 'var'];
@@ -166,25 +166,20 @@ function lexicalAnalysis(code) {
     return tokens;
 }
 
-function syntacticAnalysis(code) {
-    const erroresSemanticos = [];
+function estructuraAlgoritmo(code) {
+    const variablesDeclaradas = new Set();
     const lines = code.split('\n');
-    const keyWordDeclaration = ['let', 'const', 'var'];
-    const keyWordMethod = ['if', 'else', 'for', 'while'];
-    const keywords = ['let', 'const', 'var', 'if', 'else', 'for', 'while', 'function', 'return'];
-    const tokenRegex = /\b(let|const|var|if|else|for|while|function|return)\b|"[^"]*"|[\w]+|[=+\-*/();{}[\],.<>!&|]|\s+/g;
-    const declarationRegex = /^(let|var|const)\s+[a-zA-Z_]\w*\s*=\s*\d+$/;
-    const regexLexicoSintactico = /^\w+\s*=\s*\w+$/;
-    let tokenAnteriro = '';
-    let linea = 1;
-    console.log(code)
-    console.log(tokens)
-    // erroresSemanticos.push({
-    //     message: `
-    //     Error sintactico: No existe la palabra reservada '${variableName}' 
-    //     como declaracion de variable en js, linea ${lineNumber+1}`,
-    //     line: lineNumber + 1
-    // });
+    const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
+    lines.forEach((line, lineNumber) => {
+        const match = line.match(declarationRegex);
+        if (match) {
+            const variableName = match[2];
+            variablesDeclaradas.add(variableName);
+        }
+    });
+    // console.log(code)
+    // console.log(tokens) 
+    console.log(variablesDeclaradas)
 }
 
 function semanticAnalysis(code) {
