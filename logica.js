@@ -1,4 +1,9 @@
 let tokens = [];
+let erroresSintacticos = [];
+const valoresUnicos = new Set();
+const variablesDeclaradas = new Set();
+
+
 function analyzeCode() {
     const code = document.getElementById('codeInput').value.trim();
     const resultDiv = document.getElementById('result');
@@ -13,65 +18,105 @@ function analyzeCode() {
 
     // Fase 1: Análisis Léxico
     tokens = []
-    const lexicoResult = declaracionVariables(code);
+    erroresSintacticos = []
+    const lexicoResult = sintacticoAnalysis(code);
+
+    detailDiv.innerHTML += '<p class="success">✓ Análisis lexico completado</p>';
+    validarParentesis(code);
+
     
-    if(lexicoResult.message != undefined){
-        detailDiv.innerHTML += '<p class="error">✗ Análisis lexico error</p>';
-        detailDiv.innerHTML += '<p><b>Salida:</b>' + (lexicoResult.message || 'Sin salida') +'</p>';
-        displayTokens([], resultDiv);
-        tokens = []
+    if(erroresSintacticos.length > 0){
+        detailDiv.innerHTML += '<p class="error">✗ Análisis sintactico error</p>';
+        detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresSintacticos[0].message || 'Sin salida') +'</p>';
+        displayTokens(lexicoResult, resultDiv);
         return;
     }else{
-        detailDiv.innerHTML += '<p class="success">✓ Análisis lexico completado</p>';
+        detailDiv.innerHTML += '<p class="success">✓ Análisis sintactico completado</p>';
         detailDiv.innerHTML += '<p><b>Salida:</b> ' + (lexicoResult.output || 'Sin salida') + '</p>';
         displayTokens(lexicoResult, resultDiv);
+        console.log(tokens)
     }
+    console.log(erroresSintacticos)
 
-    // Fase 2: Análisis Sintáctico
-    const syntaxResult = estructuraAlgoritmo(code);
-    detailDiv.innerHTML += '<p class="success">✓ Análisis sintáctico completado</p>';
-    // detailDiv.innerHTML += '<p>Salida: ' + (syntaxResult.output || 'Sin salida') + '</p>';
 
     // // Fase 3: Análisis Semántico y Ejecución
-    // const semanticResult = semanticAnalysis(code);
+    const semanticResult = semanticoAnalysis(code);
     // detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
     // detailDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
 }
 
-function declaracionVariables(code) {
-    const variablesDeclaradas = new Set();
-    const variablesDeclaradasSinSet = []
-    const erroresLexicos = [];
+function validarParentesis(code) {
+    const pila = [];
+    const lineas = code.split('\n');
+
+    for (let i = 0; i < lineas.length; i++) {
+        const linea = lineas[i];
+        for (let j = 0; j < linea.length; j++) {
+            const caracter = linea[j];
+            if (caracter === '(' || caracter === '{') {
+                pila.push({ caracter, linea: i + 1, columna: j + 1 });
+            } else if (caracter === ')') {
+                if (pila.length > 0 && pila[pila.length - 1].caracter === '(') {
+                    pila.pop();
+                } else {
+                    erroresSintacticos.push({
+                        message: `
+                        <br>
+                        <b>Error sintactico</b> <br>
+                        <b>Numero de linea: </b> ${i + 1} <br>
+                        <b>Mensaje: </b>Parentesis de cierre ')' sin apertura. <br>
+                        <b>Linea con error: ${linea} <br>
+                        `,
+                    });
+                    return tokens
+                }
+            } else if (caracter === '}') {
+                if (pila.length > 0 && pila[pila.length - 1].caracter === '{') {
+                    pila.pop();
+                } else {
+                    erroresSintacticos.push({
+                        message: `
+                        <br>
+                        <b>Error sintactico</b> <br>
+                        <b>Numero de linea: </b> ${i + 1} <br>
+                        <b>Mensaje: </b>Error: Llave de cierre '}' sin apertura. <br>
+                        <b>Linea con error: ${linea} <br>
+                        `,
+                    });
+                    return tokens
+                }
+            }
+        }
+    }
+
+    if (pila.length > 0) {
+        pila.forEach(apertura => {
+            erroresSintacticos.push({
+                message: `
+                <br>
+                <b>Error sintactico</b><br>
+                <b>Numero de linea: </b>${pila[0].linea}<br>
+                <b>Mensaje: </b> Error agrupador de apertura '${apertura.caracter}' sin cierre.
+                 <br>
+                `,
+            });
+        });
+        return tokens
+    }
+
+    return erroresSintacticos;
+}
+
+function sintacticoAnalysis(code) {
     const lines = code.split('\n');
     const keyWordDeclaration = ['let', 'const', 'var'];
     const keyWordMethod = ['if', 'else', 'for', 'while'];
     const keywords = ['let', 'const', 'var', 'if', 'else', 'for', 'while', 'function', 'return'];
     const tokenRegex = /\b(let|const|var|if|else|for|while|function|return)\b|"[^"]*"|[\w]+|[=+\-*/();{}[\],.<>!&|]|\s+/g;
-    const declarationRegex = /^(let|var|const)\s+[a-zA-Z_]\w*\s*=\s*\d+$/;
+    const declarationRegex = /^(let|var)\s+[a-zA-Z_]\w*\s*(?:=\s*\d+)?$|^const\s+[a-zA-Z_]\w*\s*=\s*.+$/;
     const regexLexicoSintactico = /^\w+\s*=\s*\w+$/;
     let tokenAnteriro = '';
     let linea = 1;
-
-    lines.forEach((line, lineNumber) => {
-        const match = line.match(declarationRegex);
-        if (match) {
-            const variableName = match[2];
-            const variableReal = match[0].split(" ")[1]
-            if(variablesDeclaradasSinSet.find(obj => obj == variableReal)){
-                erroresLexicos.push({
-                    message: `
-                    <br>
-                    Error semantico <br>
-                    Mensaje: La variable ${variableReal} ya fue declarada<br>
-                    Linea con error ${lineNumber + 1} <br>
-                    Error exacto: ${line} <br>
-                    `
-                });
-            }
-            variablesDeclaradasSinSet.push(variableReal)
-            variablesDeclaradas.add(variableName);
-        }
-    });
 
     for (let index = 0; index < lines.length; index++) { // Usamos un bucle for para un control más claro
         const line = lines[index];
@@ -91,16 +136,17 @@ function declaracionVariables(code) {
 
             // esto va
             if (tokenAnteriro !== '' && keywords.includes(tokenAnteriro) && keywords.includes(token) && lineaActual === numeroLinea) {
-                erroresLexicos.push({
+                erroresSintacticos.push({
                     message: `
                     <br>
-                        Error sintactico <br>
-                        Numero de linea : ${numeroLinea} <br>
-                        Mensaje: Recuerde que no puede haber mas de 1 palabra de declaracion<br>
-                        Linea con error ${line} <br>
-                        Error exacto ${tokenAnteriro} ${token} <br>`,
+                        <b>Error sintactico</b> <br>
+                        <b>Numero de linea:</b> ${numeroLinea} <br>
+                        <b>Mensaje:</b> Recuerde que no puede haber mas de 1 palabra de declaracion<br>
+                        <b>Linea con error</b> ${line} <br>
+                        <b>Error exacto</b> ${tokenAnteriro} ${token} <br>`,
                     line: numeroLinea
                 });
+                return tokens
             }
 
             // eso va
@@ -112,25 +158,25 @@ function declaracionVariables(code) {
             // eso va
             if (tokenAnteriro = '' && !keyWordDeclaration.includes(token)) {
                 if (declarationRegex.exec(line)) {
-                    erroresLexicos.push({
+                    erroresSintacticos.push({
                         message: `
                         <br>
-                            Error lexico <br>
-                            Numero de linea : ${numeroLinea} <br>
-                            Mensaje: Recuerde que debe usar algun tipo de declaracion ${keyWordDeclaration} para las variables<br>
-                            Linea con error ${line} <br>`,
+                            <b>Error lexico</b> <br>
+                            <b>Numero de linea:</b> ${numeroLinea} <br>
+                            <b>Mensaje:</b> Recuerde que debe usar algun tipo de declaracion ${keyWordDeclaration} para las variables<br>
+                            <b>Linea con error:</b> ${line} <br>`,
                         line: numeroLinea
                     });
                 }
 
                 if (regexLexicoSintactico.exec(line)) {
-                    erroresLexicos.push({
+                    erroresSintacticos.push({
                         message: `
                         <br>
-                            Error semantico <br>
-                            Numero de linea : ${numeroLinea} <br>
-                            Mensaje: Recuerde que debe usar algun tipo de declaracion ${keyWordDeclaration} para las variables<br>
-                            Linea con error ${line} <br>`,
+                            <b>Error semantico</b> <br>
+                            <b>Numero de linea:</b> ${numeroLinea} <br>
+                            <b>Mensaje:</b> Recuerde que debe usar algun tipo de declaracion ${keyWordDeclaration} para las variables<br>
+                            <b>Linea con error:</b> ${line} <br>`,
                         line: numeroLinea
                     });
                 }
@@ -138,11 +184,11 @@ function declaracionVariables(code) {
 
             // eso va
             if (declarationRegex.exec(line) === null) {
-                erroresLexicos.push({
+                erroresSintacticos.push({
                     message: `
-                        Error lexico o sintactico <br>
+                        Error sintactico <br>
                         <b>Numero de linea:</b> ${numeroLinea} <br>
-                        <b>Mensaje:</b> Se presenta un error de tipo lexico o sintactico, la estructura no cumple<br>
+                        <b>Mensaje:</b> Se presenta un error de tipo sintactico, la estructura no cumple<br>
                         <b>Sugerencia:</b> Las variables deben estar declaradas, paralabras validas <i><strong>${keyWordDeclaration}</strong></i><br>
                         <b>Linea con error:</b> ${line} <br>`
                 });
@@ -177,9 +223,6 @@ function declaracionVariables(code) {
             }
         }
 
-        if (erroresLexicos.length > 0) {
-            return erroresLexicos[0]
-        }
     }
 
     if (tokens.length === 0) {
@@ -189,15 +232,20 @@ function declaracionVariables(code) {
     return tokens;
 }
 
-function estructuraAlgoritmo(code) {
-    const variablesDeclaradas = new Set();
-    const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
+function semanticoAnalysis(code) {
+    const erroresSemanticos = [];
     const lines = code.split('\n');
-    const ifRegex = /^\s*if\b/;
-    const elseRegex = /^\s*else\b/;
-    const forRegex = /^\s*for\b/;
-    const whileRegex = /^\s*while\b/;
 
+    const _identificadas = []
+
+    // Expresión regular para identificar declaraciones (simplificada)
+    const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
+    // Expresión regular para identificar usos de variables (simplificada)
+    const usageRegex = /[a-zA-Z_][a-zA-Z0-9_]*/g;
+    // Expresión regular para identificar strings (para ignorar su contenido)
+    const stringRegex = /(['"])(.*?)\1/g;
+
+    // Primera pasada: Registrar declaraciones
     lines.forEach((line, lineNumber) => {
         const match = line.match(declarationRegex);
         if (match) {
@@ -206,30 +254,10 @@ function estructuraAlgoritmo(code) {
         }
     });
 
-    lines.forEach(linea => {
-        if (ifRegex.test(linea)) {
-          console.log(`Se encontró un 'if' al inicio de: "${linea.trim()}"`);
-        } else if (elseRegex.test(linea)) {
-          console.log(`Se encontró un 'else' al inicio de: "${linea.trim()}"`);
-        } else if (forRegex.test(linea)) {
-          console.log(`Se encontró un 'for' al inicio de: "${linea.trim()}"`);
-        } else if (whileRegex.test(linea)) {
-          console.log(`Se encontró un 'while' al inicio de: "${linea.trim()}"`);
-        }
-    });    
-    // console.log(code)
-    console.log(tokens) 
     console.log(variablesDeclaradas)
+
 }
 
-function semanticAnalysis(code) {
-    erroresSemanticos.push({
-        message: `
-        Error semantico: No existe la palabra reservada '${variableName}' 
-        como declaracion de variable en js, linea ${lineNumber+1}`,
-        line: lineNumber + 1
-    });
-}
 
 // Función auxiliar para traducir errores
 function traducirError(mensaje, error, linea) {
@@ -323,8 +351,9 @@ function getErrorLine(code, error) {
 }
 
 function displayTokens(tokens, resultDiv) {
-    const valoresUnicos = new Set();
-    let tokenHTML = '<div class="token-list"><h3>Tokens encontrados:</h3><ul>';
+    let tokenHTML = ''
+
+    tokenHTML += '<div class="token-list"><h3>Tokens encontrados:</h3><ul>'
 
     const tipoTokenMap = {
         'palabra clave': (value) => {
@@ -379,11 +408,11 @@ function displayTokens(tokens, resultDiv) {
         'texto': () => 'key_literal_texto' // Asegúrate de haber añadido este tipo en lexicalAnalysis
     };
 
+    valoresUnicos.clear();
     tokens.forEach(token => {
         if (!valoresUnicos.has(token.value)) {
             valoresUnicos.add(token.value);
             const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
-            
             tokenHTML += `<li> 
                 <b>Valor:</b> ${token.value} <br> 
                 <b>Token:</b> ${tipoEspecifico} 
