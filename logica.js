@@ -17,6 +17,8 @@ function analyzeCode() {
     }
 
     // Fase 1: Análisis Léxico
+    valoresUnicos.clear();
+    variablesDeclaradas.clear();
     tokens = []
     erroresSintacticos = []
     const lexicoResult = sintacticoAnalysis(code);
@@ -27,22 +29,29 @@ function analyzeCode() {
     
     if(erroresSintacticos.length > 0){
         detailDiv.innerHTML += '<p class="error">✗ Análisis sintactico error</p>';
-        detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresSintacticos[0].message || 'Sin salida') +'</p>';
+        detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresSintacticos[0].message || 'Ejecutado correctamente') +'</p>';
         displayTokens(lexicoResult, resultDiv);
         return;
     }else{
         detailDiv.innerHTML += '<p class="success">✓ Análisis sintactico completado</p>';
         detailDiv.innerHTML += '<p><b>Salida:</b> ' + (lexicoResult.output || 'Sin salida') + '</p>';
         displayTokens(lexicoResult, resultDiv);
-        console.log(tokens)
     }
-    console.log(erroresSintacticos)
 
 
     // // Fase 3: Análisis Semántico y Ejecución
+    erroresSemanticos = []
     const semanticResult = semanticoAnalysis(code);
-    // detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
-    // detailDiv.innerHTML += '<p>Salida: ' + (semanticResult.output || 'Sin salida') + '</p>';
+    if(erroresSemanticos.length > 0){
+        detailDiv.innerHTML += '<p class="error">✗ Análisis semántico error</p>';
+        detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresSemanticos[0].message || 'Sin salida') +'</p>';
+        displayTokens(semanticResult, resultDiv);
+        return;
+    }else{
+        detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
+        detailDiv.innerHTML += '<p><b>Salida:</b> ' + (semanticResult.output || 'Sin salida') + '</p>';
+        displayTokens(semanticResult, resultDiv);
+    }
 }
 
 function validarParentesis(code) {
@@ -112,8 +121,9 @@ function sintacticoAnalysis(code) {
     const keyWordDeclaration = ['let', 'const', 'var'];
     const keyWordMethod = ['if', 'else', 'for', 'while'];
     const keywords = ['let', 'const', 'var', 'if', 'else', 'for', 'while', 'function', 'return'];
-    const tokenRegex = /\b(let|const|var|if|else|for|while|function|return)\b|"[^"]*"|[\w]+|[=+\-*/();{}[\],.<>!&|]|\s+/g;
+    const tokenRegex = /\b(let|const|var|if|else|for|while|function|return)\b|['"`][^'"`]*['"`]|[\w]+|[=+\-*/();{}[\],.<>!&|]|\s+/g;
     const declarationRegex = /^(let|var)\s+[a-zA-Z_]\w*\s*(?:=\s*\d+)?$|^const\s+[a-zA-Z_]\w*\s*=\s*.+$/;
+    const structureRegex = /^(let|var)\s+[a-zA-Z_]\w*(?:\s*=\s*.+)?$|^const\s+[a-zA-Z_]\w*\s*=\s*.+$/;
     const regexLexicoSintactico = /^\w+\s*=\s*\w+$/;
     let tokenAnteriro = '';
     let linea = 1;
@@ -183,7 +193,7 @@ function sintacticoAnalysis(code) {
             }
 
             // eso va
-            if (declarationRegex.exec(line) === null) {
+            if (structureRegex.exec(line) === null) {
                 erroresSintacticos.push({
                     message: `
                         Error sintactico <br>
@@ -205,8 +215,8 @@ function sintacticoAnalysis(code) {
                     type = 'operador';
                 } else if (/[();{}[\],.]/.test(token)) {
                     type = 'puntuacion';
-                } else if (token.startsWith('"') && token.endsWith('"')) {
-                    type = 'texto'; // Nuevo tipo para cadenas de texto
+                } else if ((token.startsWith('`') && token.endsWith('`')) || (token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+                    type = "cadena";
                 }
 
                 tokens.push({
@@ -215,6 +225,7 @@ function sintacticoAnalysis(code) {
                     line: index + 1,
                     position: position
                 });
+
                 position += match.index + token.length;
             }
 
@@ -233,10 +244,8 @@ function sintacticoAnalysis(code) {
 }
 
 function semanticoAnalysis(code) {
-    const erroresSemanticos = [];
+    const variablesDeclaradas = new Set();
     const lines = code.split('\n');
-
-    const _identificadas = []
 
     // Expresión regular para identificar declaraciones (simplificada)
     const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
@@ -254,7 +263,105 @@ function semanticoAnalysis(code) {
         }
     });
 
-    console.log(variablesDeclaradas)
+    // Segunda pasada: Verificar usos (ignorando contenido de strings)
+    lines.forEach((line, lineNumber) => {
+        // Eliminar el contenido de las cadenas para no analizarlas como variables
+        const codeWithoutStrings = line.replace(stringRegex, '');
+        const declaracionVariable = ['const', 'let', 'var']
+        const declaracionVariableFuncion = ['if', 'else', 'for', 'while']
+        const palabrasReservadas = ['function', 'return', 'true', 'false', 'null', 'undefined', 'NaN', 'Infinity']
+        let match;
+
+        while ((match = usageRegex.exec(codeWithoutStrings)) !== null) {
+            const variableName = match[0];
+
+            if (!variablesDeclaradas.has(variableName) && !declaracionVariable.includes(variableName)) {
+                if(
+                    declaracionVariable.includes(variableName) == false
+                ){
+
+                    const contienePalabraClave = declaracionVariableFuncion.some(palabraClave => {
+                        return variableName.includes(palabraClave);
+                    });
+
+                    if(
+                        declaracionVariable.filter(obj => obj == variableName).length == 0
+                        &&
+                        declaracionVariableFuncion.filter(obj => obj == variableName).length == 0
+                    ){
+                        if(contienePalabraClave){
+                            erroresSemanticos.push({
+                                message: `
+                                Error semantico: No existe la palabra reservada '${variableName}' 
+                                como funcion en js, linea ${lineNumber+1}`,
+                                line: lineNumber + 1
+                            });
+                        }
+
+                        if(variablesDeclaradas.has(variableName)){
+                            erroresSemanticos.push({
+                                message: `
+                                Error semantico: No se declaro la variable '${variableName}', linea ${lineNumber+1}`,
+                                line: lineNumber + 1
+                            });
+                        }
+
+                        erroresSemanticos.push({
+                            message: `
+                            Error semantico: No existe la palabra reservada '${variableName}' 
+                            como declaracion de variable en js, linea ${lineNumber+1}`,
+                            line: lineNumber + 1
+                        });
+                    }
+
+                }
+            }
+
+        }
+
+
+        // Resetear el índice para la próxima línea
+        usageRegex.lastIndex = 0;
+    });
+
+
+
+    if (erroresSemanticos.length > 0) {
+        erroresSemanticos.push({
+            message: `
+            ${erroresSemanticos[0]}
+            `
+        });
+    }
+
+    try {
+        const sandbox = {
+            output: '',
+            console: {
+                log: (...args) => sandbox.output += args.join(' ') + '\n'
+            }
+        };
+
+        const func = new Function(`
+            "use strict";
+            ${code}
+        `);
+        func.call(sandbox);
+
+        return {
+            valid: true,
+            output: sandbox.output.trim() || 'Ejecutado correctamente'
+        };
+    } catch (error) {
+        const lineNumber = getErrorLine(code, error) - 4;
+        let mensajeEnEspañol = traducirError(error.message, error, lineNumber);
+        erroresSemanticos.push({
+            message: `
+            ${mensajeEnEspañol}
+            `,
+            line: lineNumber + 1
+        });
+    }
 
 }
 
@@ -355,6 +462,7 @@ function displayTokens(tokens, resultDiv) {
 
     tokenHTML += '<div class="token-list"><h3>Tokens encontrados:</h3><ul>'
 
+
     const tipoTokenMap = {
         'palabra clave': (value) => {
             if (value === 'for') return 'key_reservada_for';
@@ -369,12 +477,12 @@ function displayTokens(tokens, resultDiv) {
         'numero': (value) => {
             const tieneNumero = /\d/.test(value);
             const tieneLetra = /[a-zA-Z]/.test(value);
-            if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-                return "key_cadena";
+            if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")) || (value.startsWith("`") && value.endsWith("`"))) {
+                return "key_literal_texto";
             }else if(tieneNumero && tieneLetra){
                 return `key_identificador_${value}`;
             }else{
-                return `numero_${value}`
+                return `key_numero_${value}`
             }
         },
         'operador': (value) => {
@@ -404,8 +512,12 @@ function displayTokens(tokens, resultDiv) {
             if (value === '.') return 'key_punto';
             return `key_puntuacion_${value}`;
         },
-        'identificador': (value) => `key_identificador_${value}`,
-        'texto': () => 'key_literal_texto' // Asegúrate de haber añadido este tipo en lexicalAnalysis
+        'cadena': (value) => {
+            return "key_cadena";
+        },
+        'identificador': (value) => {
+            return `key_identificador_${value}`
+        }
     };
 
     valoresUnicos.clear();
