@@ -374,34 +374,21 @@ function semanticoAnalysis(code) {
   lines.forEach((line, lineNumber) => {
       const match = line.match(declarationRegex);
       if (match) {
-          const variableName = match[2];
+          let variableName = match[2];
+          if(variablesDeclaradas.has(variableName)){
+            erroresSemanticos.push({
+              message: `
+              <br>
+              <b>Error:</b> (semantico)<br>
+              <b>Linea error:</b> ${lineNumber+1}<br>
+              <b>Error exacto:</b> ${line} <br>
+              <b>Recomendación:</b> Ya se declaro ${variableName}.<br>
+              `,
+            });
+          }
           variablesDeclaradas.add(variableName);
       }
   });
-
-  console.log(lines)
- 
-
-
-  if(variablesDeclaradas.has(variableName)){
-      erroresSemanticos.push({
-          message: `
-          Error semantico: 
-          No se declaro la variable '${variableName}', 
-          linea ${lineNumber+1}`
-      });
-  }
-
-  // erroresSemanticos.push({
-  //   message: `
-  //   Error semantico: No se declaro la variable '${variableName}', 
-  //   linea ${lineNumber+1}`
-  // });
-  // erroresSemanticos.push({
-  //   message: `
-  //   Error semantico: La variable ya fue declarada anteriormente '${variableName}', 
-  //   linea ${lineNumber+1}`
-  // });
 }
 
 
@@ -562,19 +549,18 @@ function displayTokens(tokens, resultDiv, nuevaTabla) {
     }
   };
 
-  console.log(tokens)
-  // tokens.forEach(token => {
-  //   if(token !== undefined && typeof(token) != 'array'){
-  //     if (!valoresUnicos.has(token.value) ) {
-  //       valoresUnicos.add(token.value);
-  //       const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
-  //       tokenHTML += `<li> 
-  //           <b>Valor:</b> ${token.value} <br> 
-  //           <b>Token:</b> ${tipoEspecifico} 
-  //       </li><br>`;
-  //     }
-  //   }
-  // });
+  tokens.forEach(token => {
+    if(token !== undefined && typeof(token) != 'array'){
+      if (!valoresUnicos.has(token.value) ) {
+        valoresUnicos.add(token.value);
+        const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
+        tokenHTML += `<li> 
+            <b>Valor:</b> ${token.value} <br> 
+            <b>Token:</b> ${tipoEspecifico} 
+        </li><br>`;
+      }
+    }
+  });
 
   tokenHTML += '</div>';
   resultDiv.innerHTML += tokenHTML;

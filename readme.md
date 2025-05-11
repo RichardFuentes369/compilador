@@ -1,9 +1,6 @@
-let a = 10
-let b = 5
-let r = 0
+let a = 1
+let b = 2
+let c = 0
 
-if (a > b) {
-  r = a + b;
-} else {
-  r = a * b;
+if (a>b){
 }
