@@ -170,8 +170,29 @@ function validacionEstructuraCondicional(code){
     }
 
     if(keywordsMethods.some(palabra => line.includes(palabra))){
-      // console.log(line+' hay algo')
-      console.log('validar estructura y que existan variables')
+      let keyEncontrada =  keywordsMethods.find(palabra => line.includes(palabra))
+      if(keyEncontrada){
+        tokens.push({
+          value: keyEncontrada,
+          type: 'palabra_clave',
+        });
+      }
+      if(keyEncontrada == 'if'){
+        const regex = /\(([a-zA-Z]+)[^a-zA-Z]+([a-zA-Z]+)\)/;
+        const match = line.match(regex)
+        if (match && match[1] && match[2]) {
+          if(!variablesDeclaradas.has(match[1]) || !variablesDeclaradas.has(match[2])){
+            erroresLexicos.push({
+              message: `
+                <br>
+                <b>Error:</b> (lexico)<br>
+                <b>Linea error:</b> ${line_count}<br>
+                <b>Error exacto:</b> ${match[1]} ó ${match[2]} nunca fue declarada como variable pero si fue usada <br>
+                `,
+            });
+          }
+        }
+      }
     }else{
       lineaSeparadaEspacio = line.trim("").split(' ')
       if(lineaSeparadaEspacio.length == 1 && lineaSeparadaEspacio[0] != '' && lineaSeparadaEspacio[0] != '}'){
@@ -179,7 +200,7 @@ function validacionEstructuraCondicional(code){
           message: `
             <br>
             <b>Error:</b> (sintactico)<br>
-            <b>Linea error:</b> ${lineaSeparadaEspacio}<br>
+            <b>Linea error:</b> ${lineaActual}<br>
             <b>Error exacto:</b> Si es un metodo debe iniciar con if for while do o si es complemento tener else <br>
             <b>Recomendación:</b> recuerde que debe ser seguido y sin espacios
             `,
