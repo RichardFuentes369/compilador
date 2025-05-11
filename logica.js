@@ -18,11 +18,11 @@ function analyzeCode() {
   valoresUnicos.clear();
   variablesDeclaradas.clear();
   tokens = []
+  tokensMostrar = []
   
   //  Fase 1: Análisis Sintacticos y Ejecución
   erroresLexicos = []
   const lexicoResult = lexicoAnalysis(code);
-  tokens.push(lexicoResult)
   if(erroresLexicos.length > 0){
     detailDiv.innerHTML += '<p class="error">✗ Análisis lexico error</p>';
     detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresLexicos[0].message || 'Ejecutado correctamente') +'</p>';
@@ -38,9 +38,9 @@ function analyzeCode() {
   erroresSintacticos = []
   const sintacticResultParentesis = validarParentesis(code);
   tokens.push(sintacticResultParentesis)
+  tokens.pop();
 
   const sintacticResult = sintacticoAnalysis(code);
-  console.log(erroresSintacticos)
   if(erroresSintacticos.length > 0){
       detailDiv.innerHTML += '<p class="error">✗ Análisis sintactico error</p>';
       detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresSintacticos[0].message || 'Ejecutado correctamente') +'</p>';
@@ -76,6 +76,9 @@ const keywords = ['let', 'const', 'var'];
 const keywordsMethods = ['if', 'else', 'for', 'do', 'while'];
 const operadorRegex = /(?:<|>|=|\|\||&|[+\-\/*])/g;
 const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
+const estructuraIfRegex = /^if\s*\(([^)]*)\)\s*\{$/;
+const estructuraelseRegex = /^\}\s*else\s*\{$/;
+const letterRegex = /[a-zA-Z]+/g;
 
 function dividirLineaInteligente(linea) {
   const elementos = [];
@@ -120,7 +123,6 @@ function lexicoAnalysis(code){
 
   for (const element of lines) {
     const estructuraLinea = dividirLineaInteligente(element)
-
     if(estructuraLinea.length == 1 || estructuraLinea.length == 0){
       return
     }
@@ -333,37 +335,62 @@ function sintacticoAnalysis(code) {
   line_count = 0
 
   for (const element of lines) {
+    line_count = line_count + 1
     const estructuraLinea = dividirLineaInteligente(element)
-    if(estructuraLinea.length == 1){
-      if(estructuraLinea[0].includes("if")){
+    if(line_count == 5 && estructuraLinea.length >= 1){
+      if(estructuraLinea[0] != 'if'){
+        erroresSintacticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (sintactico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Debe iniciar con if.<br>
+            `,
+        });
+      }else if(!estructuraIfRegex.test(estructuraLinea[0]+estructuraLinea[1]+estructuraLinea[2])){
+        erroresSintacticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (sintactico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Debe contener una estructura similar a if (a>b) {<br>
+            `,
+        });
+      }else{
         tokens.push({
-            value: 'if',
-            type: 'palabra_clave',
+          value: 'if',
+          type: 'palabra_clave',
         });
       }
-      if(estructuraLinea[0].includes("else")){
-         tokens.push({
-            value: 'else',
-            type: 'palabra_clave',
-        });       
-      }
-      if(estructuraLinea[0].includes("for")){
+    }
+    if(line_count == 7 && estructuraLinea.length >= 1){
+      if(estructuraLinea[1] != 'else'){
+        erroresSintacticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (sintactico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Debe contener else.<br>
+            `,
+        });
+      }else if(!estructuraelseRegex.test(estructuraLinea[0]+estructuraLinea[1]+estructuraLinea[2])){
+        erroresSintacticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (sintactico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Debe contener una estructura similar a } else {<br>
+            `,
+        });
+      }else{
         tokens.push({
-            value: 'for',
-            type: 'palabra_clave',
-        });        
-      }
-      if(estructuraLinea[0].includes("do")){
-        tokens.push({
-            value: 'do',
-            type: 'palabra_clave',
-        });        
-      }
-      if(estructuraLinea[0].includes("while")){
-        tokens.push({
-            value: 'while',
-            type: 'palabra_clave',
-        });        
+          value: 'else',
+          type: 'palabra_clave',
+        });
       }
     }
   }
@@ -371,24 +398,86 @@ function sintacticoAnalysis(code) {
 
 function semanticoAnalysis(code) {
   const lines = code.split('\n');
-  lines.forEach((line, lineNumber) => {
-      const match = line.match(declarationRegex);
-      if (match) {
-          let variableName = match[2];
-          if(variablesDeclaradas.has(variableName)){
+  line_count = 0
+
+  for (const element of lines) {
+    line_count = line_count + 1
+    const estructuraLinea = dividirLineaInteligente(element)
+
+    if(line_count == 1 || line_count == 2 || line_count == 3){
+      if(!variablesDeclaradas.has(estructuraLinea[1])){
+        variablesDeclaradas.add(estructuraLinea[1])
+      }else{
+          erroresSemanticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (semantico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Ya fue declarada la variable ${estructuraLinea[1]}<br>
+            `,
+        });
+      }
+    }
+
+    if(line_count == 5){
+      for (let i = 0; i < estructuraLinea[1].length; i++) {
+        const caracter = estructuraLinea[1][i];
+        console.log(caracter)
+        if(letterRegex.test(caracter)){
+          if(!variablesDeclaradas.has(caracter)){
             erroresSemanticos.push({
-              message: `
+            message: `
               <br>
               <b>Error:</b> (semantico)<br>
-              <b>Linea error:</b> ${lineNumber+1}<br>
-              <b>Error exacto:</b> ${line} <br>
-              <b>Recomendación:</b> Ya se declaro ${variableName}.<br>
+              <b>Linea error:</b> ${line_count}<br>
+              <b>Recomendación:</b> no fue declarada la variable ${caracter}<br>
               `,
-            });
+          });
           }
-          variablesDeclaradas.add(variableName);
+        }
       }
-  });
+    }
+
+
+    // if(line_count == 6){
+    //   for (let i = 0; i < estructuraLinea[1].length; i++) {
+    //     const caracter = estructuraLinea[1][i];
+    //     console.log(caracter)
+    //     if(letterRegex.test(caracter)){
+    //       if(!variablesDeclaradas.has(caracter)){
+    //         erroresSemanticos.push({
+    //         message: `
+    //           <br>
+    //           <b>Error:</b> (semantico)<br>
+    //           <b>Linea error:</b> ${line_count}<br>
+    //           <b>Recomendación:</b> no fue declarada la variable ${caracter}<br>
+    //           `,
+    //       });
+    //       }
+    //     }
+    //   }
+    // }
+
+    // if(line_count == 8){
+    //   for (let i = 0; i < estructuraLinea[1].length; i++) {
+    //     const caracter = estructuraLinea[1][i];
+    //     console.log(caracter)
+    //     if(letterRegex.test(caracter)){
+    //       if(!variablesDeclaradas.has(caracter)){
+    //         erroresSemanticos.push({
+    //         message: `
+    //           <br>
+    //           <b>Error:</b> (semantico)<br>
+    //           <b>Linea error:</b> ${line_count}<br>
+    //           <b>Recomendación:</b> no fue declarada la variable ${caracter}<br>
+    //           `,
+    //       });
+    //       }
+    //     }
+    //   }
+    // }
+  }
 }
 
 
@@ -490,7 +579,6 @@ function displayTokens(tokens, resultDiv, nuevaTabla) {
   if(nuevaTabla){
     tokenHTML += '<h3>Tokens encontrados:</h3>'
   }
-  
 
   const tipoTokenMap = {
     'palabra_clave': (value) => {
@@ -549,18 +637,20 @@ function displayTokens(tokens, resultDiv, nuevaTabla) {
     }
   };
 
-  tokens.forEach(token => {
-    if(token !== undefined && typeof(token) != 'array'){
-      if (!valoresUnicos.has(token.value) ) {
-        valoresUnicos.add(token.value);
-        const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
-        tokenHTML += `<li> 
-            <b>Valor:</b> ${token.value} <br> 
-            <b>Token:</b> ${tipoEspecifico} 
-        </li><br>`;
-      }
+  for (const token of tokens) {
+    if(!tokensMostrar.find(obj => obj.value === token.value)){
+      tokensMostrar.push(token)
+      const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
+      tokenHTML += `
+      <li> 
+        <b>Valor:</b> ${token.value} <br> 
+      </li>
+      <li>
+        <b>Token:</b> ${tipoEspecifico} 
+      </li>
+      <br>`;
     }
-  });
+  }  
 
   tokenHTML += '</div>';
   resultDiv.innerHTML += tokenHTML;
