@@ -29,12 +29,13 @@ function analyzeCode() {
     return;
   }else{
     detailDiv.innerHTML += '<p class="success">✓ Análisis lexico completado</p>';
-    detailDiv.innerHTML += '<p><b>Salida:</b> ' + (lexicoResult.output || 'Ejecutado correctamente') + '</p>';
+    detailDiv.innerHTML += '<p><b>Salida:</b> ' + ('Ejecutado correctamente') + '</p>';
     displayTokens(lexicoResult, resultDiv);
   }
 
   // Fase 2: Análisis Sintacticos y Ejecución
   erroresSintacticos = []
+  validarParentesis(code);
   const sintacticResult = sintacticoAnalysis(code);
   if(erroresSintacticos.length > 0){
       detailDiv.innerHTML += '<p class="error">✗ Análisis sintactico error</p>';
@@ -43,12 +44,11 @@ function analyzeCode() {
       return;
   }else{
       detailDiv.innerHTML += '<p class="success">✓ Análisis sintactico completado</p>';
-      detailDiv.innerHTML += '<p><b>Salida:</b> ' + (sintacticResult.output || 'Ejecutado correctamente') + '</p>';
+      detailDiv.innerHTML += '<p><b>Salida:</b> ' + ('Ejecutado correctamente') + '</p>';
       displayTokens(sintacticResult, resultDiv);
   }
 
-  // validarParentesis(code);
-    
+  console.log('aqui estoy')
   // Fase 3: Análisis Semántico y Ejecución
   erroresSemanticos = []
   const semanticResult = semanticoAnalysis(code);
@@ -59,9 +59,185 @@ function analyzeCode() {
       return;
   }else{
       detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
-      detailDiv.innerHTML += '<p><b>Salida:</b> ' + (semanticResult.output || 'Sin salida') + '</p>';
+      detailDiv.innerHTML += '<p><b>Salida:</b> ' + ('Sin salida') + '</p>';
       displayTokens(semanticResult, resultDiv);
   }
+}
+
+const inicioLetVarConstRegex = /^(let|const|var)\b/;
+const variableRegex = /^[a-zA-Z]+(?:_[a-zA-Z]+)*$|^[a-zA-Z]*_[a-zA-Z_]*$/;
+const igualRegex = /^=$/;
+const numerosRegex = /^\d+$/;
+const textoRegex = /^(["'`]).*\1$/;
+const keywords = ['let', 'const', 'var'];
+const keywordsMethods = ['if', 'else'];
+
+function dividirLineaInteligente(linea) {
+  const elementos = [];
+  let dentroDeComillas = null;
+  let elementoActual = "";
+
+  for (let i = 0; i < linea.length; i++) {
+    const char = linea[i];
+
+    if (char === '"' || char === "'" || char === "`") {
+      if (dentroDeComillas === null) {
+        dentroDeComillas = char;
+        elementoActual += char;
+      } else if (dentroDeComillas === char) {
+        elementoActual += char;
+        elementos.push(elementoActual);
+        elementoActual = "";
+        dentroDeComillas = null;
+      } else {
+        elementoActual += char; // Incluir comillas anidadas o diferentes dentro de la cadena actual
+      }
+    } else if (char === ' ' && dentroDeComillas === null) {
+      if (elementoActual.trim() !== "") {
+        elementos.push(elementoActual.trim());
+      }
+      elementoActual = "";
+    } else {
+      elementoActual += char;
+    }
+  }
+
+  if (elementoActual.trim() !== "") {
+    elementos.push(elementoActual.trim());
+  }
+
+  return elementos;
+}
+
+function lexicoAnalysis(code){
+  const lines = code.split('\n');
+  line_count = 0
+
+  for (const element of lines) {
+    const estructuraLinea = dividirLineaInteligente(element)
+
+    if(estructuraLinea.length == 1 || estructuraLinea.length == 0){
+      return
+    }
+
+    line_count += 1
+    if(
+      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length < 2 
+      || 
+      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length == 3
+      || 
+      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length > 4
+      ||
+      (estructuraLinea.length >= 3 && estructuraLinea[2] != '=')
+    ){
+      erroresLexicos.push({
+        message: `
+          <br>
+          <b>Error:</b> (lexico)<br>
+          <b>Linea error:</b> ${line_count}<br>
+          <b>Error exacto:</b> ${element} <br>
+          <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
+          <b>Recomendación:</b> Solo se puede asignar una variable por declaracion en javascript.<br>
+          `,
+      });
+    }
+    if(!inicioLetVarConstRegex.test(element)){
+      erroresLexicos.push({
+        message: `
+          <br>
+          <b>Error:</b> (lexico)<br>
+          <b>Linea error:</b> ${line_count}<br>
+          <b>Error exacto:</b> ${element} <br>
+          <b>Ejemlplo:</b> let a = 1 ó const a = 1 ó var a = 1<br>
+          <b>Recomendación:</b> Recuerde que para declarar una variable en javascript, esta debe iniciar con let, var, o const y seguir una estructura <b>xxx xx = x</b>.<br>
+          `,
+      });
+    }
+
+    if(inicioLetVarConstRegex.test(element)){
+      if(estructuraLinea.length >= 5){
+        erroresLexicos.push({
+          message: `
+            <br>
+            <b>Error:</b> (lexico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Ejemlplo:</b> let a = 1 ó const a = 1 ó var a = 1<br>
+            <b>Recomendación:</b> Recuerde que para declarar una variable en javascript, esta debe iniciar con let, var, o const y seguir una estructura <b>xxx xx = x</b>.<br>
+            `,
+        });
+      }
+    }
+
+    if(!textoRegex.test(estructuraLinea[3])){
+      if(!numerosRegex.test(estructuraLinea[3])){
+        erroresLexicos.push({
+          message: `
+            <br>
+            <b>Error:</b> (lexico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
+            <b>Recomendación:</b> Solo se puede asignar numeros o texto javascript.<br>
+            `,
+        });
+      }
+    }
+
+    for (const element of estructuraLinea) {
+      if(keywords.includes(element)){
+        if(!tokens.find(e => e.token == element)){
+          tokens.push({
+            value: element,
+            type: 'palabra_clave',
+          });
+        }
+      }
+      if(
+        variableRegex.exec(element) && element !== 'let' && element !== 'var' && element !== 'const'
+      ){
+        if(!tokens.find(e => e.token == element)){
+          tokens.push({
+            value: element,
+            type: 'identificador',
+          });
+        }
+      }      
+      if(igualRegex.exec(element)){
+        if(!tokens.find(e => e.token == element)){
+          tokens.push({
+            value: element,
+            type: 'operador',
+          });
+        }
+      }      
+      if(numerosRegex.exec(element)){
+        if(!tokens.find(e => e.token == element)){
+          tokens.push({
+            value: element,
+            type: 'numero',
+          });
+        }
+      }
+      if(textoRegex.exec(element)){
+        if(!tokens.find(e => e.token == element[0])){
+          tokens.push({
+            value: element[0],
+            type: (element[0] == "'") ? 'cadena_sencilla' : (element[0] == '"') ? 'cadena_doble' : 'cadena_multilinea',
+          });
+        }
+        if(!tokens.find(e => e.token == "key_cadena")){
+          tokens.push({
+            value: "cadena",
+            type: "key_cadena",
+          });
+        }
+      }
+    }
+      
+  }
+  
+  return tokens;
 }
 
 function validarParentesis(code) {
@@ -142,161 +318,6 @@ function validarParentesis(code) {
     }
 
     return erroresSintacticos;
-}
-
-const inicioLetVarConstRegex = /^(let|const|var)\b/;
-const variableRegex = /^[a-zA-Z]+(?:_[a-zA-Z]+)*$|^[a-zA-Z]*_[a-zA-Z_]*$/;
-const igualRegex = /^=$/;
-const numerosRegex = /^\d+$/;
-const textoRegex = /^(["'`]).*\1$/;
-const keywords = ['let', 'const', 'var'];
-
-function dividirLineaInteligente(linea) {
-  const elementos = [];
-  let dentroDeComillas = null;
-  let elementoActual = "";
-
-  for (let i = 0; i < linea.length; i++) {
-    const char = linea[i];
-
-    if (char === '"' || char === "'" || char === "`") {
-      if (dentroDeComillas === null) {
-        dentroDeComillas = char;
-        elementoActual += char;
-      } else if (dentroDeComillas === char) {
-        elementoActual += char;
-        elementos.push(elementoActual);
-        elementoActual = "";
-        dentroDeComillas = null;
-      } else {
-        elementoActual += char; // Incluir comillas anidadas o diferentes dentro de la cadena actual
-      }
-    } else if (char === ' ' && dentroDeComillas === null) {
-      if (elementoActual.trim() !== "") {
-        elementos.push(elementoActual.trim());
-      }
-      elementoActual = "";
-    } else {
-      elementoActual += char;
-    }
-  }
-
-  if (elementoActual.trim() !== "") {
-    elementos.push(elementoActual.trim());
-  }
-
-  return elementos;
-}
-
-function lexicoAnalysis(code){
-  const lines = code.split('\n');
-  line_count = 0
-
-  for (const element of lines) {
-    const estructuraLinea = dividirLineaInteligente(element)
-    line_count += 1
-    if(
-      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length < 2 
-      || 
-      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length == 3
-      || 
-      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length > 4
-      ||
-      (estructuraLinea.length >= 3 && estructuraLinea[2] != '=')
-    ){
-      erroresLexicos.push({
-        message: `
-          <br>
-          <b>Error:</b> (lexico)<br>
-          <b>Linea error:</b> ${line_count}<br>
-          <b>Error exacto:</b> ${element} <br>
-          <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
-          <b>Recomendación:</b> Solo se puede asignar una variable por declaracion en javascript.<br>
-          `,
-      });
-    }
-    if(!inicioLetVarConstRegex.test(element)){
-      erroresLexicos.push({
-        message: `
-          <br>
-          <b>Error:</b> (lexico)<br>
-          <b>Linea error:</b> ${line_count}<br>
-          <b>Error exacto:</b> ${element} <br>
-          <b>Ejemlplo:</b> let a = 1 ó const a = 1 ó var a = 1<br>
-          <b>Recomendación:</b> Recuerde que para declarar una variable en javascript, esta debe iniciar con let, var, o const y seguir una estructura <b>xxx xx = x</b>.<br>
-          `,
-      });
-    }
-
-    if(!textoRegex.test(estructuraLinea[3])){
-      if(!numerosRegex.test(estructuraLinea[3])){
-        erroresLexicos.push({
-          message: `
-            <br>
-            <b>Error:</b> (lexico)<br>
-            <b>Linea error:</b> ${line_count}<br>
-            <b>Error exacto:</b> ${element} <br>
-            <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
-            <b>Recomendación:</b> Solo se puede asignar numeros o texto javascript.<br>
-            `,
-        });
-      }
-    }
-
-    for (const element of estructuraLinea) {
-      if(keywords.includes(element)){
-        if(!tokens.find(e => e.token == element)){
-          tokens.push({
-            value: element,
-            type: 'palabra_clave',
-          });
-        }
-      }
-      if(
-        variableRegex.exec(element) && element !== 'let' && element !== 'var' && element !== 'const'
-      ){
-        if(!tokens.find(e => e.token == element)){
-          tokens.push({
-            value: element,
-            type: 'identificador',
-          });
-        }
-      }      
-      if(igualRegex.exec(element)){
-        if(!tokens.find(e => e.token == element)){
-          tokens.push({
-            value: element,
-            type: 'operador',
-          });
-        }
-      }      
-      if(numerosRegex.exec(element)){
-        if(!tokens.find(e => e.token == element)){
-          tokens.push({
-            value: element,
-            type: 'numero',
-          });
-        }
-      }
-      if(textoRegex.exec(element)){
-        if(!tokens.find(e => e.token == element[0])){
-          tokens.push({
-            value: element[0],
-            type: (element[0] == "'") ? 'cadena_sencilla' : (element[0] == '"') ? 'cadena_doble' : 'cadena_multilinea',
-          });
-        }
-        if(!tokens.find(e => e.token == "key_cadena")){
-          tokens.push({
-            value: "cadena",
-            type: "key_cadena",
-          });
-        }
-      }
-    }
-    
-  }
-  
-  return tokens;
 }
 
 function sintacticoAnalysis(code) {
