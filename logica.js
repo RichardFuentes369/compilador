@@ -22,30 +22,34 @@ function analyzeCode() {
   //  Fase 1: Análisis Sintacticos y Ejecución
   erroresLexicos = []
   const lexicoResult = lexicoAnalysis(code);
+  tokens.push(lexicoResult)
   if(erroresLexicos.length > 0){
     detailDiv.innerHTML += '<p class="error">✗ Análisis lexico error</p>';
     detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresLexicos[0].message || 'Ejecutado correctamente') +'</p>';
-    displayTokens(lexicoResult, resultDiv);
+    displayTokens(tokens, resultDiv, true);
     return;
   }else{
     detailDiv.innerHTML += '<p class="success">✓ Análisis lexico completado</p>';
     detailDiv.innerHTML += '<p><b>Salida:</b> ' + ('Ejecutado correctamente') + '</p>';
-    displayTokens(lexicoResult, resultDiv);
+    displayTokens(tokens, resultDiv, true);
   }
 
   // Fase 2: Análisis Sintacticos y Ejecución
   erroresSintacticos = []
-  validarParentesis(code);
+  const sintacticResultParentesis = validarParentesis(code);
+  tokens.push(sintacticResultParentesis)
+
   const sintacticResult = sintacticoAnalysis(code);
+  console.log(erroresSintacticos)
   if(erroresSintacticos.length > 0){
       detailDiv.innerHTML += '<p class="error">✗ Análisis sintactico error</p>';
       detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresSintacticos[0].message || 'Ejecutado correctamente') +'</p>';
-      displayTokens(sintacticResult, resultDiv);
+      displayTokens(tokens, resultDiv, false);
       return;
   }else{
       detailDiv.innerHTML += '<p class="success">✓ Análisis sintactico completado</p>';
       detailDiv.innerHTML += '<p><b>Salida:</b> ' + ('Ejecutado correctamente') + '</p>';
-      displayTokens(sintacticResult, resultDiv);
+      displayTokens(tokens, resultDiv, false);
   }
 
   console.log('aqui estoy')
@@ -55,12 +59,12 @@ function analyzeCode() {
   if(erroresSemanticos.length > 0){
       detailDiv.innerHTML += '<p class="error">✗ Análisis semántico error</p>';
       detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresSemanticos[0].message || 'Sin salida') +'</p>';
-      displayTokens(semanticResult, resultDiv);
+      displayTokens(semanticResult, resultDiv, false);
       return;
   }else{
       detailDiv.innerHTML += '<p class="success">✓ Análisis semántico completado</p>';
       detailDiv.innerHTML += '<p><b>Salida:</b> ' + ('Sin salida') + '</p>';
-      displayTokens(semanticResult, resultDiv);
+      displayTokens(semanticResult, resultDiv, false);
   }
 }
 
@@ -70,7 +74,8 @@ const igualRegex = /^=$/;
 const numerosRegex = /^\d+$/;
 const textoRegex = /^(["'`]).*\1$/;
 const keywords = ['let', 'const', 'var'];
-const keywordsMethods = ['if', 'else'];
+const keywordsMethods = ['if', 'else', 'for', 'do', 'while'];
+const operadorRegex = /(?:<|>|=|\|\||&|[+\-\/*])/g;
 
 function dividirLineaInteligente(linea) {
   const elementos = [];
@@ -269,10 +274,9 @@ function validarParentesis(code) {
                     erroresSintacticos.push({
                         message: `
                         <br>
-                        <b>Error sintactico</b> <br>
-                        <b>Numero de linea: </b> ${i + 1} <br>
+                        <b>Error:</b>(sintactico) <br>
+                        <b>Linea error:</b> ${i + 1} <br>
                         <b>Mensaje: </b>Parentesis de cierre ')' sin apertura. <br>
-                        <b>Linea con error: ${linea} <br>
                         `,
                     });
                     return tokens
@@ -290,14 +294,18 @@ function validarParentesis(code) {
                     erroresSintacticos.push({
                         message: `
                         <br>
-                        <b>Error sintactico</b> <br>
-                        <b>Numero de linea: </b> ${i + 1} <br>
+                        <b>Error:</b>(sintactico) <br>
+                        <b>Linea error:</b> ${i + 1} <br>
                         <b>Mensaje: </b>Error: Llave de cierre '}' sin apertura. <br>
-                        <b>Linea con error: ${linea} <br>
                         `,
                     });
                     return tokens
                 }
+            } else if (operadorRegex.test(caracter)){
+              tokens.push({
+                value: caracter,
+                type: 'operador',
+              });
             }
         }
     }
@@ -307,10 +315,10 @@ function validarParentesis(code) {
             erroresSintacticos.push({
                 message: `
                 <br>
-                <b>Error sintactico</b><br>
-                <b>Numero de linea: </b>${pila[0].linea}<br>
+                <b>Error:</b>(sintactico) <br>
+                <b>Linea error:</b> ${pila[0].linea} <br>
                 <b>Mensaje: </b> Error agrupador de apertura '${apertura.caracter}' sin cierre.
-                 <br>
+                <br>
                 `,
             });
         });
@@ -321,8 +329,44 @@ function validarParentesis(code) {
 }
 
 function sintacticoAnalysis(code) {
-  // si abro pero no cierro parentesis
-  // si hago ijkjkjf en vez de if
+  const lines = code.split('\n');
+  line_count = 0
+
+  for (const element of lines) {
+    const estructuraLinea = dividirLineaInteligente(element)
+    if(estructuraLinea.length == 1){
+      if(estructuraLinea[0].includes("if")){
+        tokens.push({
+            value: 'if',
+            type: 'palabra_clave',
+        });
+      }
+      if(estructuraLinea[0].includes("else")){
+         tokens.push({
+            value: 'else',
+            type: 'palabra_clave',
+        });       
+      }
+      if(estructuraLinea[0].includes("for")){
+        tokens.push({
+            value: 'for',
+            type: 'palabra_clave',
+        });        
+      }
+      if(estructuraLinea[0].includes("do")){
+        tokens.push({
+            value: 'do',
+            type: 'palabra_clave',
+        });        
+      }
+      if(estructuraLinea[0].includes("while")){
+        tokens.push({
+            value: 'while',
+            type: 'palabra_clave',
+        });        
+      }
+    }
+  }
 }
 
 function semanticoAnalysis(code) {
@@ -422,11 +466,14 @@ function getErrorLine(code, error) {
   return 'desconocida';
 }
 
-function displayTokens(tokens, resultDiv) {
-  let tokenHTML = ''
+function displayTokens(tokens, resultDiv, nuevaTabla) {
+ 
+  let tokenHTML = '<div class="token-list">'
 
-  tokenHTML += '<div class="token-list"><h3>Tokens encontrados:</h3><ul>'
-
+  if(nuevaTabla){
+    tokenHTML += '<h3>Tokens encontrados:</h3>'
+  }
+  
 
   const tipoTokenMap = {
     'palabra_clave': (value) => {
@@ -486,17 +533,19 @@ function displayTokens(tokens, resultDiv) {
   };
 
   tokens.forEach(token => {
-    if (!valoresUnicos.has(token.value)) {
-      valoresUnicos.add(token.value);
-      const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
-      tokenHTML += `<li> 
-          <b>Valor:</b> ${token.value} <br> 
-          <b>Token:</b> ${tipoEspecifico} 
-      </li><br>`;
+    if(token !== undefined){
+      if (!valoresUnicos.has(token.value) ) {
+        valoresUnicos.add(token.value);
+        const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
+        tokenHTML += `<li> 
+            <b>Valor:</b> ${token.value} <br> 
+            <b>Token:</b> ${tipoEspecifico} 
+        </li><br>`;
+      }
     }
   });
 
-  tokenHTML += '</ul></div>';
+  tokenHTML += '</div>';
   resultDiv.innerHTML += tokenHTML;
 }
 
