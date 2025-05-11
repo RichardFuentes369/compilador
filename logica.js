@@ -180,7 +180,7 @@ function validacionEstructuraCondicional(code){
             <br>
             <b>Error:</b> (sintactico)<br>
             <b>Linea error:</b> ${lineaSeparadaEspacio}<br>
-            <b>Error exacto:</b> Si es un metodo debe iniciar con if for while do <br>
+            <b>Error exacto:</b> Si es un metodo debe iniciar con if for while do o si es complemento tener else <br>
             <b>Recomendación:</b> recuerde que debe ser seguido y sin espacios
             `,
         });
