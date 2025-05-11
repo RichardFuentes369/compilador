@@ -27,6 +27,7 @@ function analyzeCode() {
 
   //  Fase 1: Análisis Sintacticos y Ejecución
   const lexicoResult = lexicoAnalysis(code);
+  validacionEstructuraCondicional(code);
   if(erroresLexicos.length > 0){
     detailDiv.innerHTML += '<p class="error">✗ Análisis lexico error</p>';
     detailDiv.innerHTML += '<p><b>Salida:</b>' + (erroresLexicos[0].message || 'Ejecutado correctamente') +'</p>';
@@ -76,11 +77,12 @@ const numerosRegex = /^\d+$/;
 const textoRegex = /^(["'`]).*\1$/;
 const keywords = ['let', 'const', 'var'];
 const keywordsMethods = ['if', 'else', 'for', 'do', 'while'];
-const operadorRegex = /(?:<|>|=|\|\||&|[+\-\/*])/g;
+const operadorRegex = /[*\/+\-<>]+/;
 const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
 const estructuraIfRegex = /^if\s*\(([^)]*)\)\s*\{$/;
 const estructuraelseRegex = /^\}\s*else\s*\{$/;
-const letterRegex = /[a-zA-Z]+/g;
+const estructuraoperacionRegex = /^[a-zA-Z]+\s+=\s+[a-zA-Z]+\s+([*\/\+\-%]|\*\*)\s+[a-zA-Z]+$/;
+const letterRegex = /^[a-zA-Z]+$/;
 
 function dividirLineaInteligente(linea) {
   const elementos = [];
@@ -121,8 +123,70 @@ function dividirLineaInteligente(linea) {
 
 // errores lexicos o semanticos por codigo 
 // asignar tokens
-function validacionEstructuraCondicional(linea){
-  console.log(linea)
+function validacionEstructuraCondicional(code){
+  const lines = code.split('\n');
+  let lineaActual = 0
+
+  for (const line of lines) {
+    let lineSplit = line.split(' ')
+
+    if(lineSplit[0] == 'let' || lineSplit[0] == 'var' || lineSplit[0] == 'const'){
+      lineaActual += 1
+    }else if(lineSplit[0] == ''){
+      lineaActual += 1
+    }else{
+      lineaActual += 1
+    }
+
+    if(estructuraoperacionRegex.test(line.trim())){
+      lineaSeparadaEspacio = line.trim("").split(' ')
+      for (let lineaOperacion of lineaSeparadaEspacio) {
+        if(letterRegex.test(lineaOperacion)){
+          if(!variablesDeclaradas.has(lineaOperacion)){
+            erroresLexicos.push({
+              message: `
+                <br>
+                <b>Error:</b> (lexico)<br>
+                <b>Linea error:</b> ${lineaActual}<br>
+                <b>Error exacto:</b> ${lineaOperacion} <br>
+                <b>Recomendación:</b> ${lineaOperacion} nunca fue declarada como variable pero si fue usada.
+                `,
+              });
+          }
+        }
+      }
+    }else if(!inicioLetVarConstRegex.test(line) && !estructuraoperacionRegex.test(line.trim())){
+      if(line != '' && !keywordsMethods.some(palabra => line.includes(palabra)) && line != '}'){
+        erroresSemanticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (semantico)<br>
+            <b>Linea error:</b> ${lineaActual}<br>
+            <b>Error exacto:</b> Despues del igual no hay operacion asignada <br>
+            <b>Recomendación:</b> recuerde que la estructura debe ser variable = variable operacion variable
+            `,
+        });
+      }
+    }
+
+    if(keywordsMethods.some(palabra => line.includes(palabra))){
+      // console.log(line+' hay algo')
+      console.log('validar estructura y que existan variables')
+    }else{
+      lineaSeparadaEspacio = line.trim("").split(' ')
+      if(lineaSeparadaEspacio.length == 1 && lineaSeparadaEspacio[0] != '' && lineaSeparadaEspacio[0] != '}'){
+        erroresSintacticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (sintactico)<br>
+            <b>Linea error:</b> ${lineaSeparadaEspacio}<br>
+            <b>Error exacto:</b> Si es un metodo debe iniciar con if for while do <br>
+            <b>Recomendación:</b> recuerde que debe ser seguido y sin espacios
+            `,
+        });
+      }
+    }
+  }
 }
 
 function lexicoAnalysis(code){
@@ -131,32 +195,52 @@ function lexicoAnalysis(code){
   let validos = ['let', 'var', 'const']
 
   for (const element of lines) {
-    if(element != ''){
-      const estructuraLinea = dividirLineaInteligente(element)
-      if(!validos.includes(estructuraLinea[0])){
-        validacionEstructuraCondicional(estructuraLinea)
-      }
-  
-      if(estructuraLinea.length == 1 || estructuraLinea.length == 0){
-        return
-      }
-  
+    line_count += 1
+
+    const estructuraLinea = dividirLineaInteligente(element)
+    if(estructuraLinea.length == 0){
       line_count += 1
-      if((estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length < 2 ||  (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length == 3 || (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length > 4 || (estructuraLinea.length >= 3 && estructuraLinea[2] != '=')){
-        erroresLexicos.push({
-          message: `
-            <br>
-            <b>Error:</b> (lexico)<br>
-            <b>Linea error:</b> ${line_count}<br>
-            <b>Error exacto:</b> ${element} <br>
-            <b>Aclaración</b> Puede usar let, var o const <br>
-            <b>Ejemlplo:</b> let x = 2 ó let x = "palabra ó frase".<br>
-            <b>Recomendación:</b> Solo se puede asignar una variable por declaracion en javascript.<br>
-            `,
+      continue;
+    }
+
+    if(estructuraLinea.length == 1 || estructuraLinea.length == 0){
+      return
+    }
+
+    if(
+      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length < 2 ||  
+      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length == 3 || 
+      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length > 4 || 
+      (estructuraLinea.length >= 3 && estructuraLinea[2] != '=') 
+    ){
+      erroresLexicos.push({
+        message: `
+          <br>
+          <b>Error:</b> (lexico)<br>
+          <b>Linea error:</b> ${line_count}<br>
+          <b>Error exacto:</b> ${element} <br>
+          <b>Aclaración</b> Puede usar let, var o const <br>
+          <b>Ejemlplo:</b> let x = 2 ó let x = "palabra ó frase".<br>
+          <b>Recomendación:</b> Solo se puede asignar una variable por declaracion en javascript.
+          `,
         });
       }
-  
+      
       if(!inicioLetVarConstRegex.test(element)){
+        erroresLexicos.push({
+          message: `
+          <br>
+          <b>Error:</b> (lexico)<br>
+          <b>Linea error:</b> ${line_count}<br>
+          <b>Error exacto:</b> ${element} <br>
+          <b>Ejemlplo:</b> let a = 1 ó const a = 1 ó var a = 1<br>
+          <b>Recomendación:</b> Recuerde que para declarar una variable en javascript, esta debe iniciar con let, var, o const y seguir una estructura <b>xxx xx = x</b>.
+          `,
+      });
+    }
+
+    if(inicioLetVarConstRegex.test(element)){
+      if(estructuraLinea.length >= 5){
         erroresLexicos.push({
           message: `
             <br>
@@ -168,100 +252,85 @@ function lexicoAnalysis(code){
             `,
         });
       }
-  
-      if(inicioLetVarConstRegex.test(element)){
-        if(estructuraLinea.length >= 5){
-          erroresLexicos.push({
-            message: `
-              <br>
-              <b>Error:</b> (lexico)<br>
-              <b>Linea error:</b> ${line_count}<br>
-              <b>Error exacto:</b> ${element} <br>
-              <b>Ejemlplo:</b> let a = 1 ó const a = 1 ó var a = 1<br>
-              <b>Recomendación:</b> Recuerde que para declarar una variable en javascript, esta debe iniciar con let, var, o const y seguir una estructura <b>xxx xx = x</b>.<br>
-              `,
+    }
+
+    if(!textoRegex.test(estructuraLinea[3])){
+      if(!numerosRegex.test(estructuraLinea[3])){
+        erroresLexicos.push({
+          message: `
+            <br>
+            <b>Error:</b> (lexico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
+            <b>Recomendación:</b> Solo se puede asignar numeros o texto javascript.<br>
+            `,
+        });
+      }
+    }
+
+    for (const element of estructuraLinea) {
+      if(keywords.includes(element)){
+        if(!tokens.find(e => e.token == element)){
+          tokens.push({
+            value: element,
+            type: 'palabra_clave',
           });
         }
       }
-  
-      if(!textoRegex.test(estructuraLinea[3])){
-        if(!numerosRegex.test(estructuraLinea[3])){
-          erroresLexicos.push({
-            message: `
-              <br>
-              <b>Error:</b> (lexico)<br>
-              <b>Linea error:</b> ${line_count}<br>
-              <b>Error exacto:</b> ${element} <br>
-              <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
-              <b>Recomendación:</b> Solo se puede asignar numeros o texto javascript.<br>
-              `,
+      if(
+        variableRegex.exec(element) && element !== 'let' && element !== 'var' && element !== 'const'
+      ){
+        if(!tokens.find(e => e.token == element)){
+
+          if(!variablesDeclaradas.has(element)){
+            variablesDeclaradas.add(element)
+          }else{
+            erroresSemanticos.push({
+              message: `
+                <br>
+                <b>Error:</b> (semantico)<br>
+                <b>Linea error:</b> ${line_count}<br>
+                <b>Error exacto:</b> La variable ${element} ya fue declarada anteriormente <br>
+                `,
+            });
+          }
+
+          tokens.push({
+            value: element,
+            type: 'identificador',
+          });
+
+        }
+      }      
+      if(igualRegex.exec(element)){
+        if(!tokens.find(e => e.token == element)){
+          tokens.push({
+            value: element,
+            type: 'operador',
+          });
+        }
+      }      
+      if(numerosRegex.exec(element)){
+        if(!tokens.find(e => e.token == element)){
+          tokens.push({
+            value: element,
+            type: 'numero',
           });
         }
       }
-  
-      for (const element of estructuraLinea) {
-        if(keywords.includes(element)){
-          if(!tokens.find(e => e.token == element)){
-            tokens.push({
-              value: element,
-              type: 'palabra_clave',
-            });
-          }
+      if(textoRegex.exec(element)){
+        if(!tokens.find(e => e.token == element[0])){
+          tokens.push({
+            value: element[0],
+            type: (element[0] == "'") ? 'cadena_sencilla' : (element[0] == '"') ? 'cadena_doble' : 'cadena_multilinea',
+          });
         }
-        if(
-          variableRegex.exec(element) && element !== 'let' && element !== 'var' && element !== 'const'
-        ){
-          if(!tokens.find(e => e.token == element)){
-
-            if(!variablesDeclaradas.has(element)){
-              variablesDeclaradas.add(element)
-            }else{
-              erroresSintacticos.push({
-                message: `
-                  <br>
-                  <b>Error:</b> (sintactico)<br>
-                  <b>Linea error:</b> ${line_count}<br>
-                  <b>Error exacto:</b> La variable ${element} ya fue declarada anteriormente <br>
-                  `,
-              });
-            }
-            
-            tokens.push({
-              value: element,
-              type: 'identificador',
-            });
-
-          }
-        }      
-        if(igualRegex.exec(element)){
-          if(!tokens.find(e => e.token == element)){
-            tokens.push({
-              value: element,
-              type: 'operador',
-            });
-          }
-        }      
-        if(numerosRegex.exec(element)){
-          if(!tokens.find(e => e.token == element)){
-            tokens.push({
-              value: element,
-              type: 'numero',
-            });
-          }
-        }
-        if(textoRegex.exec(element)){
-          if(!tokens.find(e => e.token == element[0])){
-            tokens.push({
-              value: element[0],
-              type: (element[0] == "'") ? 'cadena_sencilla' : (element[0] == '"') ? 'cadena_doble' : 'cadena_multilinea',
-            });
-          }
-          if(!tokens.find(e => e.token == "key_cadena")){
-            tokens.push({
-              value: "cadena",
-              type: "key_cadena",
-            });
-          }
+        if(!tokens.find(e => e.token == "key_cadena")){
+          tokens.push({
+            value: "cadena",
+            type: "key_cadena",
+          });
         }
       }
     }

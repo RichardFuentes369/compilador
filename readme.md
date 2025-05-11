@@ -1,8 +1,12 @@
 let a = 1
-var b = 2
-const c = 3
+let b = 2
+let c = 3
 let r = 0
 
 if(a>b){
-} else {
+ r = a ** b
+}else{
+ r = a * b
 }
+
+// falta validar variables declaradas dentro del if
