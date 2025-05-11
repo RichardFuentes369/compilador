@@ -52,7 +52,6 @@ function analyzeCode() {
       displayTokens(tokens, resultDiv, false);
   }
 
-  console.log('aqui estoy')
   // Fase 3: Análisis Semántico y Ejecución
   erroresSemanticos = []
   const semanticResult = semanticoAnalysis(code);
@@ -76,6 +75,7 @@ const textoRegex = /^(["'`]).*\1$/;
 const keywords = ['let', 'const', 'var'];
 const keywordsMethods = ['if', 'else', 'for', 'do', 'while'];
 const operadorRegex = /(?:<|>|=|\|\||&|[+\-\/*])/g;
+const declarationRegex = /(const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=?/;
 
 function dividirLineaInteligente(linea) {
   const elementos = [];
@@ -370,8 +370,38 @@ function sintacticoAnalysis(code) {
 }
 
 function semanticoAnalysis(code) {
-  // que se declaren 2 0 mas veces las variables
-  // se usa una variable que nunca fue declarada
+  const lines = code.split('\n');
+  lines.forEach((line, lineNumber) => {
+      const match = line.match(declarationRegex);
+      if (match) {
+          const variableName = match[2];
+          variablesDeclaradas.add(variableName);
+      }
+  });
+
+  console.log(lines)
+ 
+
+
+  if(variablesDeclaradas.has(variableName)){
+      erroresSemanticos.push({
+          message: `
+          Error semantico: 
+          No se declaro la variable '${variableName}', 
+          linea ${lineNumber+1}`
+      });
+  }
+
+  // erroresSemanticos.push({
+  //   message: `
+  //   Error semantico: No se declaro la variable '${variableName}', 
+  //   linea ${lineNumber+1}`
+  // });
+  // erroresSemanticos.push({
+  //   message: `
+  //   Error semantico: La variable ya fue declarada anteriormente '${variableName}', 
+  //   linea ${lineNumber+1}`
+  // });
 }
 
 
@@ -532,18 +562,19 @@ function displayTokens(tokens, resultDiv, nuevaTabla) {
     }
   };
 
-  tokens.forEach(token => {
-    if(token !== undefined){
-      if (!valoresUnicos.has(token.value) ) {
-        valoresUnicos.add(token.value);
-        const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
-        tokenHTML += `<li> 
-            <b>Valor:</b> ${token.value} <br> 
-            <b>Token:</b> ${tipoEspecifico} 
-        </li><br>`;
-      }
-    }
-  });
+  console.log(tokens)
+  // tokens.forEach(token => {
+  //   if(token !== undefined && typeof(token) != 'array'){
+  //     if (!valoresUnicos.has(token.value) ) {
+  //       valoresUnicos.add(token.value);
+  //       const tipoEspecifico = tipoTokenMap[token.type] ? tipoTokenMap[token.type](token.value) : token.type;
+  //       tokenHTML += `<li> 
+  //           <b>Valor:</b> ${token.value} <br> 
+  //           <b>Token:</b> ${tipoEspecifico} 
+  //       </li><br>`;
+  //     }
+  //   }
+  // });
 
   tokenHTML += '</div>';
   resultDiv.innerHTML += tokenHTML;
