@@ -84,6 +84,7 @@ const estructuraIfRegex = /^if\s*\(([^)]*)\)\s*\{$/;
 const estructuraelseRegex = /^\}\s*else\s*\{$/;
 const estructuraoperacionRegex = /^[a-zA-Z]+\s+=\s+[a-zA-Z]+\s+([*\/\+\-%]|\*\*)\s+[a-zA-Z]+$/;
 const letterRegex = /^[a-zA-Z]+$/;
+const numerosLetrasRegex = /^(?=.*[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ])(?=.*\d).*$/
 
 function dividirLineaInteligente(linea) {
   const elementos = [];
@@ -538,8 +539,20 @@ function semanticoAnalysis(code) {
         });
       }
 
+      for (const element of estructuraLinea) {
+        if(numerosLetrasRegex.test(element)){
+          erroresSemanticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (lexico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Alguna variable no fue declarada.
+            `,
+          });
+        }
+      }
     }
-
   }
 }
 
