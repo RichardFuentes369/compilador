@@ -145,10 +145,10 @@ function validacionEstructuraCondicional(code){
       for (let lineaOperacion of lineaSeparadaEspacio) {
         if(letterRegex.test(lineaOperacion)){
           if(!variablesDeclaradas.has(lineaOperacion)){
-            erroresLexicos.push({
+            erroresSemanticos.push({
               message: `
                 <br>
-                <b>Error:</b> (lexico)<br>
+                <b>Error:</b> (semantico)<br>
                 <b>Linea error:</b> ${lineaActual}<br>
                 <b>Error exacto:</b> ${lineaOperacion} <br>
                 <b>Recomendación:</b> ${lineaOperacion} nunca fue declarada como variable pero si fue usada.
@@ -199,10 +199,10 @@ function validacionEstructuraCondicional(code){
         const match = line.match(regex)
         if (match && match[1] && match[2]) {
           if(!variablesDeclaradas.has(match[1]) || !variablesDeclaradas.has(match[2])){
-            erroresLexicos.push({
+            erroresSemanticos.push({
               message: `
                 <br>
-                <b>Error:</b> (lexico)<br>
+                <b>Error:</b> (semantico)<br>
                 <b>Linea error:</b> ${line_count}<br>
                 <b>Error exacto:</b> ${match[1]} ó ${match[2]} nunca fue declarada como variable pero si fue usada <br>
                 `,
@@ -273,15 +273,27 @@ function lexicoAnalysis(code){
       
     if(!inicioLetVarConstRegex.test(element)){
       if(!variablesDeclaradas.has(estructuraLinea[0])){
-        erroresLexicos.push({
-          message: `
-          <br>
-          <b>Error:</b> (lexico)<br>
-          <b>Linea error:</b> ${line_count}<br>
-          <b>Error exacto:</b> ${element} <br>
-          <b>Recomendación:</b> Algun elemento de ${element} nunca fue declarado pero si usado.
-          `,
-        });
+        if(estructuraLinea.length <= 4){
+          erroresLexicos.push({
+            message: `
+            <br>
+            <b>Error:</b> (lexico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Recuerde que para declarar variables debes usar let const o var.
+            `,
+          });
+        }else{
+          erroresSemanticos.push({
+            message: `
+            <br>
+            <b>Error:</b> (semantico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Recuerde que para declarar variables debes usar let const o var.
+            `,
+          });
+        }
       }
     }
 
@@ -335,10 +347,10 @@ function lexicoAnalysis(code){
               variablesDeclaradas.add(element)
             }else{
               if(estructuraLinea[0] == "let" || estructuraLinea[0] == "var" || estructuraLinea[0] == "const"){
-                erroresSintacticos.push({
+                erroresSemanticos.push({
                   message: `
                     <br>
-                    <b>Error:</b> (sintactico)<br>
+                    <b>Error:</b> (semantico)<br>
                     <b>Linea error:</b> ${line_count}<br>
                     <b>Error exacto:</b> La variable ${element} ya fue declarada anteriormente <br>
                     `,
@@ -486,12 +498,9 @@ function semanticoAnalysis(code) {
       const token = tokens[i];
 
       if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
-        // Se encontró una cadena
         if (i >= 2 && 
-            typeof tokens[i - 2] === 'string' && tokens[i - 2].length === 1 && // El token dos posiciones antes es una letra
-            tokens[i - 1] === '+') {
-          // La cadena está precedida por una letra y un '+'
-          // Ahora verificamos si hay otros operadores problemáticos antes
+          typeof tokens[i - 2] === 'string' && tokens[i - 2].length === 1 && // El token dos posiciones antes es una letra
+          tokens[i - 1] === '+') {
           for (let j = 0; j < i - 2; j++) {
             if (['*', '/', '+', '-'].includes(tokens[j])) {
               return false; // Se encontró un operador no permitido antes de la secuencia letra + cadena
@@ -516,10 +525,10 @@ function semanticoAnalysis(code) {
     ){
       if(letterRegex.test(estructuraLinea[0])){
         if(!variablesDeclaradas.has(estructuraLinea[0])){
-          erroresLexicos.push({
+          erroresSemanticos.push({
             message: `
               <br>
-              <b>Error:</b> (lexico)<br>
+              <b>Error:</b> (semantico)<br>
               <b>Linea error:</b> ${line_count}<br>
               <b>Error exacto:</b> ${element} <br>
               <b>Recomendación:</b> ${estructuraLinea} nunca fue declarada como variable pero si fue usada.
@@ -544,7 +553,18 @@ function semanticoAnalysis(code) {
           erroresSemanticos.push({
           message: `
             <br>
-            <b>Error:</b> (lexico)<br>
+            <b>Error:</b> (semantico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Alguna variable no fue declarada.
+            `,
+          });
+        }
+        if(letterRegex.test(element) && !variablesDeclaradas.has(element)){
+          erroresSemanticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (semantico)<br>
             <b>Linea error:</b> ${line_count}<br>
             <b>Error exacto:</b> ${element} <br>
             <b>Recomendación:</b> Alguna variable no fue declarada.
