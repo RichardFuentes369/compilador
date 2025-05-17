@@ -1,4 +1,5 @@
 let tokens = [];
+let esMetodo = false
 const valoresUnicos = new Set();
 const variablesDeclaradas = new Set();
 
@@ -126,7 +127,7 @@ function dividirLineaInteligente(linea) {
 function validacionEstructuraCondicional(code){
   const lines = code.split('\n');
   let lineaActual = 0
-
+  
   for (const line of lines) {
     let lineSplit = line.split(' ')
 
@@ -157,21 +158,36 @@ function validacionEstructuraCondicional(code){
       }
     }else if(!inicioLetVarConstRegex.test(line) && !estructuraoperacionRegex.test(line.trim())){
       if(line != '' && !keywordsMethods.some(palabra => line.includes(palabra)) && line != '}'){
-        erroresSemanticos.push({
-          message: `
-            <br>
-            <b>Error:</b> (semantico)<br>
-            <b>Linea error:</b> ${lineaActual}<br>
-            <b>Error exacto:</b> Despues del igual no hay operacion asignada <br>
-            <b>Recomendación:</b> recuerde que la estructura debe ser variable = variable operacion variable
-            `,
-        });
-      }
+        let separacion = line.split('=')
+        if(separacion.length == 1){
+          erroresSintacticos.push({
+            message: `
+              <br>
+              <b>Error:</b> (sintactico)<br>
+              <b>Linea error:</b> ${lineaActual}<br>
+              <b>Error exacto:</b> Despues del igual no hay operacion asignada <br>
+              <b>Recomendación:</b> recuerde que la estructura debe ser variable = variable operacion variable
+              `,
+          });
+        }
+        if(separacion.length == 2 && separacion[1].trim() == ''){
+          erroresSintacticos.push({
+            message: `
+              <br>
+              <b>Error:</b> (sintactico)<br>
+              <b>Linea error:</b> ${lineaActual}<br>
+              <b>Error exacto:</b> Despues del igual no hay operacion asignada <br>
+              <b>Recomendación:</b> recuerde que la estructura debe ser variable = variable operacion variable
+              `,
+          });
+        }
+      } 
     }
 
     if(keywordsMethods.some(palabra => line.includes(palabra))){
       let keyEncontrada =  keywordsMethods.find(palabra => line.includes(palabra))
       if(keyEncontrada){
+        esMetodo = true
         tokens.push({
           value: keyEncontrada,
           type: 'palabra_clave',
@@ -225,14 +241,21 @@ function lexicoAnalysis(code){
     }
 
     if(estructuraLinea.length == 1 || estructuraLinea.length == 0){
-      return
+      let palabraToken = tokens.find(obj => obj.value === estructuraLinea[0])
+      if(palabraToken === undefined){
+        tokens.push({
+          value: estructuraLinea[0],
+          type: 'key_desconocida_'+estructuraLinea[0],
+        })
+      }
+      continue
     }
 
     if(
       (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length < 2 ||  
       (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length == 3 || 
-      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length > 4 || 
-      (estructuraLinea.length >= 3 && estructuraLinea[2] != '=') 
+      (estructuraLinea[0] == 'let' || estructuraLinea == 'var') && estructuraLinea.length > 4 && 
+      (estructuraLinea.length == 4 && estructuraLinea[2] != '=') 
     ){
       erroresLexicos.push({
         message: `
@@ -244,20 +267,21 @@ function lexicoAnalysis(code){
           <b>Ejemlplo:</b> let x = 2 ó let x = "palabra ó frase".<br>
           <b>Recomendación:</b> Solo se puede asignar una variable por declaracion en javascript.
           `,
-        });
-      }
+      });
+    }
       
-      if(!inicioLetVarConstRegex.test(element)){
+    if(!inicioLetVarConstRegex.test(element)){
+      if(!variablesDeclaradas.has(estructuraLinea[0])){
         erroresLexicos.push({
           message: `
           <br>
           <b>Error:</b> (lexico)<br>
           <b>Linea error:</b> ${line_count}<br>
           <b>Error exacto:</b> ${element} <br>
-          <b>Ejemlplo:</b> let a = 1 ó const a = 1 ó var a = 1<br>
-          <b>Recomendación:</b> Recuerde que para declarar una variable en javascript, esta debe iniciar con let, var, o const y seguir una estructura <b>xxx xx = x</b>.
+          <b>Recomendación:</b> Algun elemento de ${element} nunca fue declarado pero si usado.
           `,
-      });
+        });
+      }
     }
 
     if(inicioLetVarConstRegex.test(element)){
@@ -275,18 +299,20 @@ function lexicoAnalysis(code){
       }
     }
 
-    if(!textoRegex.test(estructuraLinea[3])){
-      if(!numerosRegex.test(estructuraLinea[3])){
-        erroresLexicos.push({
-          message: `
-            <br>
-            <b>Error:</b> (lexico)<br>
-            <b>Linea error:</b> ${line_count}<br>
-            <b>Error exacto:</b> ${element} <br>
-            <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
-            <b>Recomendación:</b> Solo se puede asignar numeros o texto javascript.<br>
+    if(estructuraLinea[0] == 'let' || estructuraLinea[0] == 'var' || estructuraLinea[0] == 'const'){
+      if(!textoRegex.test(estructuraLinea[3])){
+        if(!numerosRegex.test(estructuraLinea[3])){
+          erroresLexicos.push({
+            message: `
+              <br>
+              <b>Error:</b> (lexico)<br>
+              <b>Linea error:</b> ${line_count}<br>
+              <b>Error exacto:</b> ${element} <br>
+              <b>Ejemlplo:</b> ${estructuraLinea[0]} x = 2 ó ${estructuraLinea[0]} x = "palabra ó frase"<br>
+              <b>Recomendación:</b> Solo se puede asignar numeros o texto javascript.<br>
             `,
-        });
+          });
+        }
       }
     }
 
@@ -303,27 +329,29 @@ function lexicoAnalysis(code){
         variableRegex.exec(element) && element !== 'let' && element !== 'var' && element !== 'const'
       ){
         if(!tokens.find(e => e.token == element)){
-
-          if(!variablesDeclaradas.has(element)){
-            variablesDeclaradas.add(element)
-          }else{
-            erroresSemanticos.push({
-              message: `
-                <br>
-                <b>Error:</b> (semantico)<br>
-                <b>Linea error:</b> ${line_count}<br>
-                <b>Error exacto:</b> La variable ${element} ya fue declarada anteriormente <br>
-                `,
+          if(estructuraLinea[0] == 'let' || estructuraLinea[0] == 'var' || estructuraLinea[0] == ['const']){
+            if(!variablesDeclaradas.has(element)){
+              variablesDeclaradas.add(element)
+            }else{
+              if(estructuraLinea[0] == "let" || estructuraLinea[0] == "var" || estructuraLinea[0] == "const"){
+                erroresSintacticos.push({
+                  message: `
+                    <br>
+                    <b>Error:</b> (sintactico)<br>
+                    <b>Linea error:</b> ${line_count}<br>
+                    <b>Error exacto:</b> La variable ${element} ya fue declarada anteriormente <br>
+                    `,
+                });
+              }
+            }
+            tokens.push({
+              value: element,
+              type: 'identificador',
             });
           }
-
-          tokens.push({
-            value: element,
-            type: 'identificador',
-          });
-
         }
-      }      
+      } 
+
       if(igualRegex.exec(element)){
         if(!tokens.find(e => e.token == element)){
           tokens.push({
@@ -451,6 +479,68 @@ function sintacticoAnalysis(code) {
 function semanticoAnalysis(code) {
   const lines = code.split('\n');
   line_count = 0
+
+  const validarTokens = (tokens) => {
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+        // Se encontró una cadena
+        if (i >= 2 && 
+            typeof tokens[i - 2] === 'string' && tokens[i - 2].length === 1 && // El token dos posiciones antes es una letra
+            tokens[i - 1] === '+') {
+          // La cadena está precedida por una letra y un '+'
+          // Ahora verificamos si hay otros operadores problemáticos antes
+          for (let j = 0; j < i - 2; j++) {
+            if (['*', '/', '+', '-'].includes(tokens[j])) {
+              return false; // Se encontró un operador no permitido antes de la secuencia letra + cadena
+            }
+          }
+          return true; // Cumple con la condición letra + "+" + cadena
+        } else {
+          return false; // La cadena no está precedida por una letra y un '+'
+        }
+      }
+    }
+    return true; // No se encontraron cadenas, la validación es exitosa (según esta regla)
+  };
+  
+
+  for (const element of lines) {
+    line_count += 1
+
+    const estructuraLinea = dividirLineaInteligente(element)
+    if(
+      estructuraLinea.length > 1 && !['let', 'var', 'const'].includes(estructuraLinea[0])
+    ){
+      if(letterRegex.test(estructuraLinea[0])){
+        if(!variablesDeclaradas.has(estructuraLinea[0])){
+          erroresLexicos.push({
+            message: `
+              <br>
+              <b>Error:</b> (lexico)<br>
+              <b>Linea error:</b> ${line_count}<br>
+              <b>Error exacto:</b> ${element} <br>
+              <b>Recomendación:</b> ${estructuraLinea} nunca fue declarada como variable pero si fue usada.
+              `,
+            });
+        }
+      }
+      if(validarTokens(estructuraLinea) == false){
+        erroresSemanticos.push({
+          message: `
+            <br>
+            <b>Error:</b> (semantico)<br>
+            <b>Linea error:</b> ${line_count}<br>
+            <b>Error exacto:</b> ${element} <br>
+            <b>Recomendación:</b> Hay un error en en la operación que desea realizar, debe ser del mismo tipo de valor.
+            `,
+        });
+      }
+
+    }
+
+  }
 }
 
 
